@@ -1,8 +1,12 @@
 import "./globals.css";
 import { ReactNode } from "react";
+import favicon from "@/public/Assets_Images/image.png"; // Import image
 
 export const metadata = {
-  title: "Cambot",
+  title: "CamBot",
+  icons: {
+    icon: favicon.src, // Use imported image source
+  },
 };
 
 interface RootLayoutProps {
@@ -14,7 +18,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <head>
         {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/png" />
+        <link rel="icon" href={favicon.src} sizes="any" />
+        <meta name="theme-color" content="#ffffff" />
       </head>
       <body>{children}</body>
     </html>

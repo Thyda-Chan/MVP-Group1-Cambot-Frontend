@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { FaBars } from 'react-icons/fa';
 import Sidebar from './sidebar';
-import UserAreaSelectBox from './userprofilebox'; // Import UserAreaSelectBox
+import UserAreaSelectBox from './userprofilebox'; 
+import logo from '@/public/Assets_Images/cambotlogo.png'; // Import logo image properly
 
 const Header = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // State to control the sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false); 
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -25,13 +27,13 @@ const Header = () => {
 
           {/* Logo */}
           <div className="font-semibold text-xl">
-            <img src="/Assets_Images" alt="Logo" className="h-8" />
+            <Image src={logo} alt="Logo" width={100} height={40} priority />
           </div>
         </div>
 
-        {/* Right Section: User Profile (UserAreaSelectBox will be here) */}
+        {/* Right Section: User Profile */}
         <div className="relative mr-6">
-          <UserAreaSelectBox /> {/* Add UserAreaSelectBox here directly */}
+          <UserAreaSelectBox />
         </div>
       </div>
 

@@ -2,10 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Add this in your global CSS file or within the <style> tag in page.tsx */
-.adlam-display-regular {
-    font-family: 'ADLaM Display', serif;
-    font-weight: 400;
+@font-face {
+    font-family: 'ADLaM Display';
+    src: url('/fonts/ADLaMDisplay.ttf') format('truetype');
+    font-weight: normal;
     font-style: normal;
+  }
+  
+  .adlam-font {
+    font-family: 'ADLaM Display', sans-serif;
   }
   

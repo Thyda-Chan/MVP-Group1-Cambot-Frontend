@@ -1,33 +1,38 @@
-'use client'; 
+'use client';
 
-import ChatInput from "@/components/chatbot/chatbox"; // Import ChatInput
-import Head from 'next/head'; // Import Head for custom head elements
+import Image from 'next/image';
+import ChatInput from "@/components/chatbot/chatbox";
+import Head from 'next/head';
+import cambotlogo from '@/public/Assets_Images/cambotlogo.png';
 
 export default function ChatbotPage() {
   const handleSearch = (query: string) => {
-    console.log('Search query:', query); // Handle the search query
+    console.log('Search query:', query);
   };
 
   return (
     <>
       <Head>
-        <style>
-          {`
-            @import url('https://fonts.googleapis.com/css2?family=ADLaM+Display&display=swap');
-          `}
-        </style>
+        <link rel="preload" href="/fonts/ADLaMDisplay.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </Head>
 
-      <div className="flex flex-col justify-center items-center h-full px-4">
+      <div className="flex flex-col justify-center items-center h-full px-0">
         {/* Cambot Logo */}
-        <img src="/path-to-your-assets/cambotlogo.png" alt="Cambot Logo" className="mb-4" />
+        <Image 
+          src={cambotlogo} 
+          alt="Cambot Logo" 
+          width={250} 
+          height={150} 
+          priority 
+          className="mt-0"
+        />
 
-        {/* Smaller text with ADLaM Display font */}
-        <p className="adlam-display-regular font-bold text-[#0082B3] text-xl sm:text-2xl md:text-3xl mb-6 text-center">
+        {/* Text with ADLaM Display font */}
+        <p className="adlam-font font-bold text-[#0082B3] text-xl sm:text-2xl md:text-3xl mb-8 text-center">
           What can I help you today?
         </p>
 
-        {/* Centered ChatInput component */}
+        {/* ChatInput */}
         <div className="w-full max-w-xl">
           <ChatInput onSearch={handleSearch} />
         </div>
