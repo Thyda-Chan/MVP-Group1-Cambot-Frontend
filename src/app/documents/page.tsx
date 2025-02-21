@@ -43,7 +43,7 @@ export default function Documents() {
       ]
     : [];
 
-  const documents = [
+  const [documents, setDocuments] = useState([
     {
       id: 1,
       name: "00001_Policyd33safds212",
@@ -64,10 +64,12 @@ export default function Documents() {
       date: "February 20, 2025",
     },
     ...submittedDocument,
-  ];
+  ]);
 
-  const deleteFile = (index: number): void => {
-    documents.splice(index, 1);
+  const deleteFile = (id: number) => {
+    setDocuments((prevDocuments) =>
+      prevDocuments.filter((doc) => doc.id !== id)
+    );
   };
 
   return (
@@ -94,7 +96,11 @@ export default function Documents() {
           <div className="font-semibold ml-6">All Documents</div>
           <div className="space-y-4">
             {documents.map((doc) => (
-              <DocumentBox key={doc.id} doc={doc} />
+              <DocumentBox
+                key={doc.id}
+                doc={doc}
+                deleteFile={() => deleteFile(doc.id)}
+              />
             ))}
           </div>
         </div>
@@ -103,7 +109,13 @@ export default function Documents() {
   );
 }
 
-const DocumentBox = ({ doc }: { doc: Document }) => {
+const DocumentBox = ({
+  doc,
+  deleteFile,
+}: {
+  doc: Document;
+  deleteFile: () => void;
+}) => {
   const isPDF = doc.type.toLowerCase() === "pdf";
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
@@ -151,7 +163,7 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
-        <button className="p-2 bg-gray-100 rounded-md">
+        <button onClick={deleteFile} className="p-2 bg-gray-100 rounded-md">
           <Trash2 />
         </button>
       </div>
