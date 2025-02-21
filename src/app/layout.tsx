@@ -1,6 +1,7 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import favicon from "@/public/Assets_Images/image.png"; // Import image
+import { SubmissionProvider } from "./upload/SubmissionContext";
 
 export const metadata = {
   title: "CamBot",
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href={favicon.src} sizes="any" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <body>{children}</body>
+      <body>
+        <SubmissionProvider>{children}</SubmissionProvider>
+      </body>
     </html>
   );
 }

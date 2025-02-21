@@ -14,6 +14,7 @@ export default {
         primary: "#005D7F",
         green: "#6DC100",
         skyblue: "#bce9fa",
+        darkblue: "#0083b1",
       },
     },
   },
