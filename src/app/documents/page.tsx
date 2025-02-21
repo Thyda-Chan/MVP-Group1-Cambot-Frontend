@@ -7,6 +7,9 @@ import Searchbar from "./Searchbar";
 import Button from "./Button";
 import { useState } from "react";
 import { useSubmission } from "../upload/SubmissionContext";
+import Image from "next/image";
+import pdfImg from "@/public/Assets_Images/pdf1.png";
+
 interface Document {
   id: number;
   name: string;
@@ -15,6 +18,7 @@ interface Document {
   department: string;
   author: string;
   date: string;
+  fileURL?: string;
 }
 
 export default function Documents() {
@@ -34,6 +38,7 @@ export default function Documents() {
           department: data.department || "Unknown",
           author: data.adminName || "Unknown",
           date: data.publishedDate || new Date().toLocaleDateString(),
+          fileURL: data.file ? URL.createObjectURL(data.file) : "",
         },
       ]
     : [];
@@ -47,18 +52,23 @@ export default function Documents() {
       department: "Finance",
       author: "Wathrak",
       date: "February 20, 2025",
+      fileUrl: pdfImg,
     },
     {
       id: 2,
-      name: "00001_SOP",
+      name: "00002_SOP",
       size: "7.2MB",
       type: "PDF",
-      department: "Finance",
+      department: "Legal",
       author: "Wathrak",
       date: "February 20, 2025",
     },
     ...submittedDocument,
   ];
+
+  const deleteFile = (index: number): void => {
+    documents.splice(index, 1);
+  };
 
   return (
     <div>
@@ -94,30 +104,50 @@ export default function Documents() {
 }
 
 const DocumentBox = ({ doc }: { doc: Document }) => {
+  const isPDF = doc.type.toLowerCase() === "pdf";
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-md"></div>
+        <div className="w-12 h-12 bg-gray-200 rounded-md">
+          {isPDF ? (
+            <embed
+              src={doc.fileURL}
+              type="application/pdf"
+              className="w-12 h-12 rounded-md"
+            />
+          ) : (
+            <span className="text-gray-500">{doc.type}</span>
+          )}
+        </div>
         <div>
-          <p className="font-semibold truncate w-32">{doc.name}</p>
-          <p className="text-sm text-gray-500">
-            {doc.size} • {doc.type}
-          </p>
+          <p className="font-semibold truncate w-40">{doc.name}</p>
         </div>
       </div>
-      <p className="flex-1 text-gray-600">{doc.author}</p>
-      <p className="flex-1 text-gray-500">{doc.date}</p>
+      <div className="flex-1 flex gap-x-4 justify-center">
+        <div className="border rounded-xl px-2 text-sm font-semibold bg-skyblue">
+          {doc.type}
+        </div>
+        <p className="text-sm text-darkblue">{doc.size}</p>
+      </div>
+
+      <div className="flex-1 flex items-center gap-x-4">
+        <div className="w-10 h-10 border bg-gray-200 rounded-full flex justify-center items-center">
+          W
+        </div>
+        <div>
+          <p className="text-gray-600">{doc.author}</p>
+          <p className="text-gray-500">{doc.date}</p>
+        </div>
+      </div>
       <div className="flex-1">
-        <div className="w-fit px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md">
+        <div className="w-fit min-w-20 px-3 py-1 text-center text-sm bg-blue-100 text-blue-600 rounded-md">
           {doc.department}
         </div>
       </div>
-      <div className="flex-1 flex justify-end">
-        <button className="px-4 py-2 bg-green text-white rounded-md">
+      <div className="flex-1 gap-2 flex justify-end">
+        <button className="px-4 py-2 mr-6 bg-green text-white rounded-md">
           Update
         </button>
-      </div>
-      <div className="flex-1 gap-2 flex justify-end">
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
