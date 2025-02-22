@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import Input from "./Input";
+import Input from "./components/Input";
 import Header from "@/components/chatbot/header";
-import { useSubmission } from "./SubmissionContext";
+import { useSubmission } from "./components/SubmissionContext";
+import { CloudUpload } from "lucide-react";
 
 export default function Upload() {
   const [file, setFile] = useState<File | null>(null);
@@ -34,9 +35,8 @@ export default function Upload() {
 
   return (
     <div>
-      <Header />
-      <div className="min-h-screen text-primary bg-gradient-to-b from-white to-[#62C9F1] flex justify-center items-center">
-        <div className="bg-white shadow-lg rounded-2xl p-6 w-full mx-8">
+      <div className="min-h-[70vh] text-primary flex justify-center items-center">
+        <div className="bg-white shadow-xl border border-gray-300 rounded-2xl p-6 w-full">
           <h2 className="text-xl font-semibold text-center mb-4">
             Upload Documents
           </h2>
@@ -45,9 +45,24 @@ export default function Upload() {
             {/* File Upload */}
             <div>Upload Your Documents</div>
             <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer bg-[#c9e5ee]">
-              <p className="text-blue-600">Drag and drop to upload</p>
-              <p className="text-sm text-gray-500">or browse</p>
-              <input type="file" onChange={handleFileUpload} />
+              <label htmlFor="uploadInput">
+                <CloudUpload size={48} />
+              </label>
+              <label htmlFor="uploadInput" className="text-blue-600">
+                Drag and drop to upload
+              </label>
+              <label
+                htmlFor="uploadInput"
+                className="text-sm p-2 text-white border rounded-xl bg-darkblue"
+              >
+                or browse
+              </label>
+              <input
+                id="uploadInput"
+                type="file"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
               {file && (
                 <p className="text-sm mt-2 text-gray-600">{file.name}</p>
               )}

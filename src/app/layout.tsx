@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import favicon from "@/public/Assets_Images/image.png"; // Import image
-import { SubmissionProvider } from "./upload/SubmissionContext";
+import { SubmissionProvider } from "./upload/components/SubmissionContext";
 
 export const metadata = {
   title: "CamBot",

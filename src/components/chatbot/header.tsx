@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { FaBars } from 'react-icons/fa';
-import Sidebar from './sidebar';
-import UserAreaSelectBox from './userprofilebox'; 
-import logo from '@/public/Assets_Images/cambotlogo.png'; // Import logo image properly
+import React, { useState } from "react";
+import Image from "next/image";
+import { FaBars } from "react-icons/fa";
+import Sidebar from "./sidebar";
+import UserAreaSelectBox from "./userprofilebox";
+import logo from "@/public/Assets_Images/cambotlogo.png"; // Import logo image properly
 
 const Header = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false); 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -22,7 +22,10 @@ const Header = () => {
         <div className="flex items-center space-x-10">
           {/* Hamburger Icon (FaBars) */}
           <div className="ml-6">
-            <FaBars onClick={toggleSidebar} className="text-xl cursor-pointer" />
+            <FaBars
+              onClick={toggleSidebar}
+              className="text-xl cursor-pointer"
+            />
           </div>
 
           {/* Logo */}

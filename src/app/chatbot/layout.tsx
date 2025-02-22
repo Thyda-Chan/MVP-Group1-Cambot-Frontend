@@ -1,7 +1,11 @@
 import Header from "@/components/chatbot/header";
 import Footer from "@/components/chatbot/footer";
 
-export default function ChatbotLayout({ children }: { children: React.ReactNode }) {
+export default function ChatbotLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1]">
       {/* Header */}

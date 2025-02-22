@@ -1,3 +1,4 @@
+import { CloudUpload } from "lucide-react";
 import React from "react";
 
 export default function SearchDoc({ placeholder }: { placeholder: string }) {

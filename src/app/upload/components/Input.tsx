@@ -25,7 +25,7 @@ export default function Input({
         placeholder={placeholder}
       />
       {errors[name] && (
-        <p className="text-red-500 text-sm">{errors[name]?.message}</p>
+        <div className="text-red-500 text-sm">{errors[name]?.message}</div>
       )}
     </div>
   );
