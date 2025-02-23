@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import ChatInput from "@/components/chatbot/chatbox";
+import ChatInput from "@/app/chatbot/components/chatbox";
 import Head from 'next/head';
 import cambotlogo from '@/public/Assets_Images/cambotlogo.png';
 

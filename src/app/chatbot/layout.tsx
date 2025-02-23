@@ -1,5 +1,5 @@
-import Header from "@/components/chatbot/header";
-import Footer from "@/components/chatbot/footer";
+import Header from "@/app/chatbot/components/header";
+import Footer from "@/app/chatbot/components/footer";
 
 export default function ChatbotLayout({
   children,

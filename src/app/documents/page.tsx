@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/components/chatbot/header";
+import Header from "@/app/chatbot/components/header";
 import { ArrowDown, CloudUpload, Trash2 } from "lucide-react";
 import SearchDoc from "./components/SearchDoc";
 import Searchbar from "./components/Searchbar";
