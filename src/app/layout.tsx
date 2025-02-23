@@ -6,7 +6,7 @@ import { SubmissionProvider } from "./upload/components/SubmissionContext";
 export const metadata = {
   title: "CamBot",
   icons: {
-    icon: favicon.src, // Use imported image source
+    icon: favicon.src, 
   },
 };
 

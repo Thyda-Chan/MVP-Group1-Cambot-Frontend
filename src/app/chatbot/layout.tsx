@@ -11,10 +11,10 @@ export default function ChatbotLayout({
       {/* Header */}
       <Header />
 
-      <div className="flex flex-1">
+      <div className="flex flex-col flex-1 overflow-hidden">
         {/* Main Content */}
         <main className="flex-1 p-6 bg-transparent overflow-auto">
-          {children} {/* This is where the page content should appear */}
+          {children} 
         </main>
       </div>
 

@@ -1,32 +1,33 @@
+//chatinput.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 
 interface ChatInputProps {
-  onSearch: (query: string) => void;
+  onUserMessage: (query: string) => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
+const ChatInput: React.FC<ChatInputProps> = ({ onUserMessage }) => {
+  const [input, setInput] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      onSearch(query);
-      setQuery('');
+    if (input.trim()) {
+      onUserMessage(input); // Send input message to parent
+      setInput('');
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center w-full max-w-xl relative transition-all duration-300 ease-in-out"
+      className="flex items-center w-full relative transition-all duration-300 ease-in-out"
     >
       <input
         type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
         placeholder="Message CamBot"
         className="w-full px-4 py-3 pr-12 rounded-full shadow-lg border border-gray-200 
         focus:outline-none focus:ring-2 focus:ring-[#0083B1] 

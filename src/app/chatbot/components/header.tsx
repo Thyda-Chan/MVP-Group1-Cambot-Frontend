@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { FaBars } from "react-icons/fa";
-import Sidebar from "./sidebar";
-import UserAreaSelectBox from "./userprofilebox";
-import logo from "@/public/Assets_Images/cambotlogo.png"; // Import logo image properly
+import Sidebar from "@/app/chatbot/components/sidebar";
+import UserAreaSelectBox from "@/app/chatbot/components/userprofilebox";
+import logo from "@/public/Assets_Images/cambotlogo.png"; 
 
 const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
