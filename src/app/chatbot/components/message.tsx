@@ -7,7 +7,7 @@ import userAvatar from '@/public/Assets_Images/user.png';
 import botAvatar from "@/public/Assets_Images/cambotlogo.png";
 
 interface MessageListProps {
-  messages: { text: string; sender: 'user' | 'bot' }[];
+  messages: { text: React.ReactNode; sender: 'user' | 'bot' }[];
   isLoading: boolean;
 }
 
@@ -43,11 +43,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
               alt="Bot Avatar"
               width={40}
               height={40}
-              className="rounded-full bg-white p-1 mr-2" // Bot logo with white background
+              className="rounded-full bg-white p-1 mr-2" 
             />
           )}
           <div
-            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} // Message box with shadow
+            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} 
           >
             {msg.text}
           </div>
@@ -55,9 +55,9 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
             <img
               src="https://www.mockofun.com/wp-content/uploads/2019/12/circle-photo.jpg"
               alt="User Avatar"
-              width={45} // Reduced width
-              height={45} // Increased height
-              className="rounded-full ml-2" // Removed bg-white
+              width={45} 
+              height={45} 
+              className="rounded-full ml-2" 
             />
           )}
         </div>
@@ -70,7 +70,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
             alt="Bot Avatar"
             width={45}
             height={45}
-            className="rounded-full bg-white p-1 mr-2" // Bot logo with white background
+            className="rounded-full bg-white p-1 mr-2" 
           />
           <div>Typing...</div>
         </div>

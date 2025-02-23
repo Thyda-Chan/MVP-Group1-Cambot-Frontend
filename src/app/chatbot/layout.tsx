@@ -12,12 +12,12 @@ export default function ChatbotLayout({
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pl-6 pt-6 pb-2"> {/* Reduce bottom padding */}
+      <main className="flex-1 overflow-auto pl-6 pt-6 pb-2"> 
         {children} 
       </main>
 
       {/* Footer */}
-      <footer className="bg-transparent text-white text-center py-2"> {/* Reduce top padding */}
+      <footer className="bg-transparent text-white text-center py-2"> 
         <Footer />
       </footer>
     </div>
