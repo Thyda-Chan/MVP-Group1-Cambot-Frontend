@@ -1,4 +1,4 @@
-//chatwindow.tsx: Manages messages, sends user input, and gets responses.
+// chatwindow.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -13,7 +13,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'bot' }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  
   const getChatbotResponse = (query: string) => {
     setIsLoading(true);
 
@@ -21,7 +20,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
       const responses: Record<string, string> = {
         "hello": "Hey there! How can I assist you today?",
         "how are you": "I'm doing great! Thanks for asking. 😊",
-        "what is AI": "AI stands for Artificial Intelligence, which enables machines to learn and make decisions.",
+        "what is ai": "AI stands for Artificial Intelligence, which enables machines to learn and make decisions.AI stands for Artificial Intelligence, which enables machines to learn and make decisions.AI stands for Artificial Intelligence, which enables machines to learn and make decisions.",
       };
 
       addMessage(responses[query.toLowerCase()] || "I'm not sure about that, but I'm learning every day!", 'bot');
@@ -29,7 +28,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
     }, 1000);
   };
 
-  
   if (initialMessage && messages.length === 0) {
     setMessages([{ text: initialMessage, sender: 'user' }]);
     getChatbotResponse(initialMessage); 
@@ -46,20 +44,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-transparent">
-        {/* MessageList */}
-        <div className="flex-1 overflow-y-auto max-h-[500px]">
-            <MessageList messages={messages} isLoading={isLoading} />
-        </div>
+    <div className="flex flex-col h-full w-full bg-transparent">
+      {/* MessageList */}
+      <div className="flex-1 overflow-y-auto">
+        <MessageList messages={messages} isLoading={isLoading} />
+      </div>
 
-        {/* ChatInput */}
-        <div className="w-full h-24 bg-transparent border-t border-gray-200 flex justify-center items-center py-2">
-            <div className="w-full max-w-xl">
-            <ChatInput onUserMessage={handleSend} />
-            </div>
+      {/* ChatInput */}
+      <div className="w-full bg-transparent border-t border-gray-200 flex justify-center items-center py-2">
+        <div className="w-full max-w-xl">
+          <ChatInput onUserMessage={handleSend} />
         </div>
+      </div>
     </div>
-
   );
 };
 

@@ -1,7 +1,7 @@
-//chatinput.tsx
+// chatinput.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
 interface ChatInputProps {
@@ -10,6 +10,15 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ onUserMessage }) => {
   const [input, setInput] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize the textarea based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset height
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set new height
+    }
+  }, [input]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,18 +28,29 @@ const ChatInput: React.FC<ChatInputProps> = ({ onUserMessage }) => {
     }
   };
 
+  // Handle Enter key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent new line
+      handleSubmit(e); // Submit the form
+    }
+    // If Shift + Enter is pressed, allow a new line (default behavior)
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
       className="flex items-center w-full relative transition-all duration-300 ease-in-out"
     >
-      <input
-        type="text"
+      <textarea
+        ref={textareaRef}
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown} // Add keydown handler
         placeholder="Message CamBot"
+        rows={1} // Start with 1 row
         className="w-full px-4 py-3 pr-12 rounded-full shadow-lg border border-gray-200 
-        focus:outline-none focus:ring-2 focus:ring-[#0083B1] 
+        focus:outline-none focus:ring-2 focus:ring-[#0083B1] resize-none overflow-hidden
         transition-all duration-300 ease-in-out transform 
         hover:scale-[1.02] focus:scale-[1.04]"
       />
