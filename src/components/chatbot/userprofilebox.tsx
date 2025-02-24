@@ -50,7 +50,9 @@ const UserAreaSelectBox = () => {
       {/* Background overlay when dropdown is open */}
       <div
         onClick={() => setOpen(false)}
-        className={`bg-gray-100 fixed inset-0 opacity-50 z-0 ${open ? "block" : "hidden"}`}
+        className={`bg-gray-100 fixed inset-0 opacity-50 z-0 ${
+          open ? "block" : "hidden"
+        }`}
       ></div>
     </>
   );

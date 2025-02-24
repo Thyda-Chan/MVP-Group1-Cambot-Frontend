@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             <Link href={"/documents"}>Documents</Link>
           </li>
           <li>
-            <Link href={"/upload"}>Upload</Link>
+            <Link href={"/users"}>Users Management</Link>
           </li>
         </ul>
       </div>

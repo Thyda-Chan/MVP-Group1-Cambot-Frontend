@@ -8,7 +8,7 @@ import Button from "./components/Button";
 import { useState } from "react";
 import { useSubmission } from "../upload/components/SubmissionContext";
 import pdfImg from "@/public/Assets_Images/pdf1.png";
-import Upload from "../upload/page";
+import Upload from "../upload/Upload";
 
 interface Document {
   id: number;
@@ -178,7 +178,7 @@ const DocumentBox = ({
         </div>
       </div>
       <div className="flex-1 gap-2 flex justify-end">
-        <button className="px-4 py-2 mr-6 bg-green text-white rounded-md">
+        <button className="px-4 py-2 mr-6 bg-green text-white rounded-3xl">
           Update
         </button>
         <button className="p-2 bg-gray-100 rounded-md">
