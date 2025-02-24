@@ -1,11 +1,9 @@
 "use client";
 
 import Header from "@/app/chatbot/components/header";
-import { ArrowDown, CloudUpload, Trash2 } from "lucide-react";
-import SearchDoc from "./components/SearchDoc";
-import Searchbar from "./components/Searchbar";
+import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
 import Button from "./components/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSubmission } from "../upload/components/SubmissionContext";
 import pdfImg from "@/public/Assets_Images/pdf1.png";
 import Upload from "../upload/Upload";
@@ -53,7 +51,6 @@ export default function Documents() {
       department: "Finance",
       author: "Wathrak",
       date: "February 20, 2025",
-      fileUrl: pdfImg,
     },
     {
       id: 2,
@@ -66,6 +63,8 @@ export default function Documents() {
     },
     ...submittedDocument,
   ]);
+
+  const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   const deleteFile = (id: number) => {
     setDocuments((prevDocuments) =>
@@ -95,19 +94,27 @@ export default function Documents() {
                 ))}
               </div>
             </div>
-            <SearchDoc placeholder="Search documents" />
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => setOpen((prev) => !prev)}
-                className="px-4 py-2 bg-green text-white rounded-xl"
-              >
-                <CloudUpload />
-              </button>
+
+            <div className="flex gap-4 items-center ml-6">
+              <SearchDoc
+                placeholder="Search documents"
+                documents={documents}
+                setFilteredDocuments={setFilteredDocuments}
+              />
+              <div className="flex items-center">
+                <button
+                  onClick={() => setOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-4 py-2 bg-darkblue text-white rounded-xl"
+                >
+                  <div>Upload</div>
+                  <CloudUpload />
+                </button>
+              </div>
             </div>
 
             <div className="font-semibold ml-6">All Documents</div>
             <div className="space-y-4">
-              {documents.map((doc) => (
+              {filteredDocuments.map((doc) => (
                 <DocumentBox
                   key={doc.id}
                   doc={doc}
@@ -122,7 +129,7 @@ export default function Documents() {
       <div
         className={`absolute left-40 w-[75%] rounded-2xl ${
           open ? "opacity-100 h-auto" : "opacity-0 h-0"
-        } transition-all duration-200 overflow-hidden absolute top-12 right-0`}
+        } transition-all duration-200 overflow-hidden top-12 right-0`}
       >
         <Upload />
       </div>
@@ -199,6 +206,52 @@ const FileUpload = () => {
         Choose file
       </button>
       <p className="text-gray-500 mt-2">or drag file in here</p>
+    </div>
+  );
+};
+
+const SearchDoc = ({
+  placeholder,
+  documents,
+  setFilteredDocuments,
+}: {
+  placeholder: string;
+  documents: Document[];
+  setFilteredDocuments: (docs: Document[]) => void;
+}) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const filteredDocs = documents.filter((document) =>
+      document.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredDocuments(filteredDocs);
+  }, [searchQuery, documents]);
+
+  return (
+    <div className="flex gap-4">
+      <div className="flex justify-between py-2 px-5 border rounded-3xl w-1/2 gap-2 bg-white focus:outline">
+        <input
+          type="search"
+          placeholder="Search User"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="focus:outline-none w-full"
+        />
+        <button>
+          <Search />
+        </button>
+      </div>
+
+      <select className="p-2 border rounded-xl">
+        <option>All departments</option>
+      </select>
+      <select className="p-2 border rounded-xl">
+        <option>Newest to lowest</option>
+      </select>
+      <button className="px-4 py-2 bg-darkblue text-white rounded-xl">
+        Search
+      </button>
     </div>
   );
 };

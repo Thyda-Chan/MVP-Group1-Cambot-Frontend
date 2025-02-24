@@ -1,13 +1,26 @@
 import { CloudUpload } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 export default function SearchDoc({ placeholder }: { placeholder: string }) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredDocs = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const displayedUsers = filteredDocs.slice(
+    indexOfFirstUser,
+    indexOfFirstUser + USERS_PER_PAGE
+  );
+
   return (
     <div className="flex gap-4">
       <input
-        type="text"
-        placeholder={placeholder}
-        className="py-2 px-5 border rounded-xl flex-grow"
+        type="search"
+        placeholder="Search User"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="focus:outline-none w-full"
       />
       <select className="p-2 border rounded-xl">
         <option>All departments</option>

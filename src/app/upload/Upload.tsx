@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Input from "./components/Input";
-import Header from "@/components/chatbot/header";
 import { useSubmission } from "./components/SubmissionContext";
 import { CloudUpload } from "lucide-react";
 
@@ -44,11 +43,14 @@ export default function Upload() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* File Upload */}
             <div>Upload Your Documents</div>
-            <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer bg-[#c9e5ee]">
+            <div className="border-2 border-dashed border-blue-300 rounded-lg gap-2 p-6 flex flex-col items-center justify-center cursor-pointer bg-[#c9e5ee]">
               <label htmlFor="uploadInput">
                 <CloudUpload size={48} />
               </label>
-              <label htmlFor="uploadInput" className="text-blue-600">
+              <label
+                htmlFor="uploadInput"
+                className="text-darkblue font-semibold"
+              >
                 Drag and drop to upload
               </label>
               <label
