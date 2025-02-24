@@ -1,7 +1,7 @@
 "use client";
-import Header from "@/components/chatbot/header";
 import React, { useState } from "react";
 import { ArrowDownUp, Search, Trash2 } from "lucide-react";
+import Header from "../chatbot/components/header";
 
 const USERS_PER_PAGE = 5;
 
