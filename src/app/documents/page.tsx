@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useSubmission } from "../upload/components/SubmissionContext";
 import pdfImg from "@/public/Assets_Images/pdf1.png";
 import Upload from "../upload/Upload";
+import { useDocuments } from "../context/DocumentContext";
 
 interface Document {
   id: number;
@@ -23,6 +24,8 @@ export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const { data } = useSubmission();
   const [open, setOpen] = useState(false);
+
+  const { documents, fetchDocuments, loading } = useDocuments();
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
   const submittedDocument = data
@@ -42,35 +45,35 @@ export default function Documents() {
       ]
     : [];
 
-  const [documents, setDocuments] = useState([
-    {
-      id: 1,
-      name: "00001_Policyd33safds212",
-      size: "7.2MB",
-      type: "PDF",
-      department: "Finance",
-      author: "Wathrak",
-      date: "February 20, 2025",
-    },
-    {
-      id: 2,
-      name: "00002_SOP",
-      size: "7.2MB",
-      type: "PDF",
-      department: "Legal",
-      author: "Wathrak",
-      date: "February 20, 2025",
-    },
-    ...submittedDocument,
-  ]);
+  // const [documents, setDocuments] = useState([
+  //   {
+  //     id: 1,
+  //     name: "00001_Policyd33safds212",
+  //     size: "7.2MB",
+  //     type: "PDF",
+  //     department: "Finance",
+  //     author: "Wathrak",
+  //     date: "February 20, 2025",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "00002_SOP",
+  //     size: "7.2MB",
+  //     type: "PDF",
+  //     department: "Legal",
+  //     author: "Wathrak",
+  //     date: "February 20, 2025",
+  //   },
+  //   ...submittedDocument,
+  // ]);
 
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
-  const deleteFile = (id: number) => {
-    setDocuments((prevDocuments) =>
-      prevDocuments.filter((doc) => doc.id !== id)
-    );
-  };
+  // const deleteFile = (id: number) => {
+  //   setDocuments((prevDocuments) =>
+  //     prevDocuments.filter((doc) => doc.id !== id)
+  //   );
+  // };
 
   return (
     <div>
@@ -113,15 +116,21 @@ export default function Documents() {
             </div>
 
             <div className="font-semibold ml-6">All Documents</div>
-            <div className="space-y-4">
-              {filteredDocuments.map((doc) => (
-                <DocumentBox
-                  key={doc.id}
-                  doc={doc}
-                  deleteFile={() => deleteFile(doc.id)}
-                />
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-[40vh]">
+                <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredDocuments.map((doc) => (
+                  <DocumentBox
+                    key={doc.id}
+                    doc={doc}
+                    deleteFile={() => deleteFile(doc.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -131,7 +140,7 @@ export default function Documents() {
           open ? "opacity-100 h-auto" : "opacity-0 h-0"
         } transition-all duration-200 overflow-hidden top-12 right-0`}
       >
-        <Upload />
+        <Upload setOpen={setOpen} />
       </div>
     </div>
   );
@@ -144,12 +153,11 @@ const DocumentBox = ({
   doc: Document;
   deleteFile: () => void;
 }) => {
-  const isPDF = doc.type.toLowerCase() === "pdf";
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-md">
-          {isPDF ? (
+        <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
+          {doc.fileURL ? (
             <embed
               src={doc.fileURL}
               type="application/pdf"

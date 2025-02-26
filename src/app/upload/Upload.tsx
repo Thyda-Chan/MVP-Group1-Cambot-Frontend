@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation";
 import Input from "./components/Input";
 import { useSubmission } from "./components/SubmissionContext";
 import { CloudUpload } from "lucide-react";
+interface UploadProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export default function Upload() {
+export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { setData } = useSubmission();
@@ -21,7 +24,8 @@ export default function Upload() {
 
   const onSubmit = (data: any) => {
     setData({ ...data, file });
-    router.push("/documents");
+    // router.push("/documents");
+    setOpen(false);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
