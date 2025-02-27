@@ -34,9 +34,9 @@ export const DocumentProvider = ({
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      //   const response = await fetch("http://localhost:5000/api/documents");
+      //   const response = await fetch("http://localhost:3000/api/documents");
       //   if (!response.ok) {
       //     throw new Error("Failed to fetch documents");
       //   }

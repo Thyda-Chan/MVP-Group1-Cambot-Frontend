@@ -5,7 +5,6 @@ import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
 import Button from "./components/Button";
 import { useEffect, useState } from "react";
 import { useSubmission } from "../upload/components/SubmissionContext";
-import pdfImg from "@/public/Assets_Images/pdf1.png";
 import Upload from "../upload/Upload";
 import { useDocuments } from "../context/DocumentContext";
 
