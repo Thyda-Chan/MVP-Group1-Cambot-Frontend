@@ -17,7 +17,10 @@ export default function Input({
 }: InputProps) {
   return (
     <div>
-      <label className="block font-medium">{label} *</label>
+      <label className="font-medium flex gap-1 mx-2">
+        <div>{label}</div>
+        <div className="text-red-500">*</div>
+      </label>
       <input
         type={type}
         {...register(name, { required: `${label} is required` })}
