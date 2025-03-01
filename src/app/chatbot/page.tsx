@@ -1,4 +1,4 @@
-//page.tsx
+// page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -36,7 +36,6 @@ export default function ChatbotPage() {
               className="mt-0"
             />
 
-            
             <p className="adlam-font font-bold text-[#0082B3] text-xl sm:text-2xl md:text-3xl mb-8 text-center">
               What can I help you today?
             </p>

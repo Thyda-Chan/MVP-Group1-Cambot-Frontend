@@ -1,83 +1,35 @@
-// message.tsx
-'use client';
-
-import React, { useEffect, useRef } from 'react';
-import Image from 'next/image';
-import userAvatar from '@/public/Assets_Images/user.png';
-import botAvatar from "@/public/Assets_Images/cambotlogo.png";
+import React from 'react';
+import FileBox from './filebox';
 
 interface MessageListProps {
-  messages: { text: React.ReactNode; sender: 'user' | 'bot' }[];
+  messages: { text: React.ReactNode; sender: 'user' | 'bot'; files: { fileName: string; fileUrl: string; publishDate: string }[] }[];
   isLoading: boolean;
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
-  const messageListRef = useRef<HTMLDivElement>(null);
-  const lastMessageRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to the bottom when messages change
-  useEffect(() => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
   return (
-    <div 
-      ref={messageListRef} 
-      className="flex-1 p-4 space-y-4 overflow-y-auto scroll-smooth scrollbar-custom"
-      style={{
-        scrollbarWidth: 'thin',
-        scrollbarColor: '#888 #f1f1f1',
-      }}
-    >
-      {messages.map((msg, index) => (
-        <div 
-          key={index} 
-          ref={index === messages.length - 1 ? lastMessageRef : null} // Attach ref to the last message
-          className={`flex items-end ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-        >
-          {msg.sender === 'bot' && (
-            <Image
-              src={botAvatar}
-              alt="Bot Avatar"
-              width={40}
-              height={40}
-              className="rounded-full bg-white p-1 mr-2" 
-            />
-          )}
-          <div
-            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} 
-          >
-            {msg.text}
+    <div className="space-y-4 p-4">
+      {messages.map((message, index) => (
+        <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div className={`max-w-[70%] p-3 rounded-lg ${message.sender === 'user' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+            <div className="whitespace-pre-line">{message.text}</div>
+            {message.files.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {message.files.map((file, fileIndex) => (
+                  <FileBox key={fileIndex} {...file} />
+                ))}
+              </div>
+            )}
           </div>
-          {msg.sender === 'user' && (
-            <img
-              src="https://www.mockofun.com/wp-content/uploads/2019/12/circle-photo.jpg"
-              alt="User Avatar"
-              width={45} 
-              height={45} 
-              className="rounded-full ml-2" 
-            />
-          )}
         </div>
       ))}
-
       {isLoading && (
-        <div className="flex items-center space-x-2 text-gray-500 italic">
-          <Image
-            src={botAvatar}
-            alt="Bot Avatar"
-            width={45}
-            height={45}
-            className="rounded-full bg-white p-1 mr-2" 
-          />
-          <div>Typing...</div>
+        <div className="flex justify-start">
+          <div className="max-w-[70%] p-3 rounded-lg bg-gray-100">
+            <div className="animate-pulse">Loading...</div>
+          </div>
         </div>
       )}
-
-      {/* Empty div to act as the scroll target */}
-      <div ref={lastMessageRef}></div>
     </div>
   );
 };
