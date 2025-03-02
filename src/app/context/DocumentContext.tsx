@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface Document {
@@ -32,15 +33,24 @@ export const DocumentProvider = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchDocuments = async () => {
+    // axios
+    //   .get("/documents/api")
+    //   .then(function (response) {
+    //     console.log(response);
+    //     setDocuments(response.data);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   })
+    //   .finally(function () {
+    //     setLoading(false);
+    //   });
+
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      //   const response = await fetch("http://localhost:3000/api/documents");
-      //   if (!response.ok) {
-      //     throw new Error("Failed to fetch documents");
-      //   }
-      //   const data: Document[] = await response.json();
+      //   const data: Document[] = await fetch("http://localhost:3000/");
 
       const data: Document[] = [
         {
@@ -50,7 +60,7 @@ export const DocumentProvider = ({
           type: "PDF",
           department: "Finance",
           author: "Admin",
-          date: "2025-02-20",
+          date: "2025-03-20",
         },
         {
           id: 2,
@@ -71,7 +81,6 @@ export const DocumentProvider = ({
           date: "2025-02-15",
         },
       ];
-
       setDocuments(data);
     } catch (error) {
       console.error("Error fetching documents:", error);

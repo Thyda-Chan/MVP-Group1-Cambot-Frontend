@@ -23,8 +23,8 @@ export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const { data } = useSubmission();
   const [open, setOpen] = useState(false);
-
   const { documents, fetchDocuments, loading } = useDocuments();
+  const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
   const submittedDocument = data
@@ -43,36 +43,6 @@ export default function Documents() {
         },
       ]
     : [];
-
-  // const [documents, setDocuments] = useState([
-  //   {
-  //     id: 1,
-  //     name: "00001_Policyd33safds212",
-  //     size: "7.2MB",
-  //     type: "PDF",
-  //     department: "Finance",
-  //     author: "Wathrak",
-  //     date: "February 20, 2025",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "00002_SOP",
-  //     size: "7.2MB",
-  //     type: "PDF",
-  //     department: "Legal",
-  //     author: "Wathrak",
-  //     date: "February 20, 2025",
-  //   },
-  //   ...submittedDocument,
-  // ]);
-
-  const [filteredDocuments, setFilteredDocuments] = useState(documents);
-
-  // const deleteFile = (id: number) => {
-  //   setDocuments((prevDocuments) =>
-  //     prevDocuments.filter((doc) => doc.id !== id)
-  //   );
-  // };
 
   return (
     <div>
@@ -227,13 +197,43 @@ const SearchDoc = ({
   setFilteredDocuments: (docs: Document[]) => void;
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDepartment, setSelectedDepartment] =
+    useState("All departments");
+  const [sortOrder, setSortOrder] = useState("Newest to Oldest");
 
   useEffect(() => {
-    const filteredDocs = documents.filter((document) =>
-      document.name.toLowerCase().includes(searchQuery.toLowerCase())
+    let filteredDocs = [...documents]; // Create a new array
+
+    if (searchQuery) {
+      filteredDocs = filteredDocs.filter((doc) =>
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedDepartment !== "All departments") {
+      filteredDocs = filteredDocs.filter(
+        (doc) => doc.department === selectedDepartment
+      );
+    }
+
+    console.log(
+      "Before sorting:",
+      filteredDocs.map((d) => d.date)
     );
-    setFilteredDocuments(filteredDocs);
-  }, [searchQuery, documents]);
+
+    // console.log(
+    //   "Before sorting:",
+    //   filteredDocs.map((d) => d.date)
+    // );
+
+    filteredDocs.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredDocuments([...filteredDocs]); // Force state update
+  }, [searchQuery, selectedDepartment, sortOrder, documents]);
 
   return (
     <div className="flex gap-4">
@@ -242,7 +242,10 @@ const SearchDoc = ({
           type="search"
           placeholder="Search User"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            // console.log("AFter sorting:", searchQuery);
+          }}
           className="focus:outline-none w-full"
         />
         <button>
@@ -250,11 +253,24 @@ const SearchDoc = ({
         </button>
       </div>
 
-      <select className="p-2 border rounded-xl">
+      <select
+        className="p-2 border rounded-xl"
+        value={selectedDepartment}
+        onChange={(e) => setSelectedDepartment(e.target.value)}
+      >
         <option>All departments</option>
+        <option>Finance</option>
+        <option>Legal</option>
+        <option>HR</option>
       </select>
-      <select className="p-2 border rounded-xl">
-        <option>Newest to lowest</option>
+
+      <select
+        className="p-2 border rounded-xl"
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value)}
+      >
+        <option>Newest to Oldest</option>
+        <option>Oldest to Newest</option>
       </select>
       <button className="px-4 py-2 bg-darkblue text-white rounded-xl">
         Search
