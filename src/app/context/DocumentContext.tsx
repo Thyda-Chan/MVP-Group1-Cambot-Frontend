@@ -1,7 +1,7 @@
 "use client";
 
-import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useSubmission } from "../upload/components/SubmissionContext";
 
 interface Document {
   id: number;
@@ -12,12 +12,14 @@ interface Document {
   author: string;
   date: string;
   fileURL?: string;
+  postDocuments: (file: File) => Promise<void>;
 }
 
 interface DocumentContextType {
   documents: Document[];
   fetchDocuments: () => Promise<void>;
   loading: boolean;
+  postDocuments: (file: File) => Promise<void>;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -31,57 +33,34 @@ export const DocumentProvider = ({
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const { data, setData } = useSubmission();
 
   const fetchDocuments = async () => {
-    // axios
-    //   .get("/documents/api")
-    //   .then(function (response) {
-    //     console.log(response);
-    //     setDocuments(response.data);
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   })
-    //   .finally(function () {
-    //     setLoading(false);
-    //   });
-
     setLoading(true);
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("http://127.0.0.1:8000/file/list");
+      const data = await response.json();
 
-      //   const data: Document[] = await fetch("http://localhost:3000/");
+      const documents: Document[] = data.map((item: any, index: number) => ({
+        id: item.id || index,
+        name: item.file_name,
+        size: formatSize(item.size),
+        type: getFileType(item.file_name),
+        department: "Unknown",
+        author: "",
+        date: new Date(item.last_modified).toLocaleDateString(),
+        fileURL: item.file_url.replace(
+          "https://ragfilemanagement.https://",
+          "https://ragfilemanagement."
+        ),
+      }));
 
-      const data: Document[] = [
-        {
-          id: 1,
-          name: "Company Policy.pdf",
-          size: "7.2MB",
-          type: "PDF",
-          department: "Finance",
-          author: "Admin",
-          date: "2025-03-20",
-        },
-        {
-          id: 2,
-          name: "Employee Handbook.docx",
-          size: "5.1MB",
-          type: "DOCX",
-          department: "HR",
-          author: "HR Manager",
-          date: "2025-02-18",
-        },
-        {
-          id: 3,
-          name: "SOP - IT Security.pdf",
-          size: "3.8MB",
-          type: "PDF",
-          department: "IT",
-          author: "Security Team",
-          date: "2025-02-15",
-        },
-      ];
-      setDocuments(data);
+      console.log(
+        "dfata::: " + JSON.stringify(documents.map((item) => item.fileURL))
+      );
+
+      setDocuments(documents);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -89,12 +68,44 @@ export const DocumentProvider = ({
     }
   };
 
+  const postDocuments = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("http://127.0.0.1:8000/file/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      alert("File uploaded successfully: " + data.file_url);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      alert("Error uploading file");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
+    if (data && data.file) {
+      postDocuments(data.file);
+      console.log("File uploaded successfully");
+    } else {
+      console.log("No file to upload");
+    }
   }, []);
 
   return (
-    <DocumentContext.Provider value={{ documents, fetchDocuments, loading }}>
+    <DocumentContext.Provider
+      value={{ documents, fetchDocuments, loading, postDocuments }}
+    >
       {children}
     </DocumentContext.Provider>
   );
@@ -107,3 +118,96 @@ export const useDocuments = () => {
   }
   return context;
 };
+
+const formatSize = (size: number) => {
+  if (size < 1024) return `${size} B`;
+  else if (size < 1048576) return `${(size / 1024).toFixed(1)} KB`;
+  else return `${(size / 1048576).toFixed(1)} MB`;
+};
+
+const getFileType = (fileName: string) => {
+  const extension = fileName.split(".").pop();
+  if (extension) {
+    return extension.toUpperCase(); // Example: "PDF", "DOCX"
+  }
+  return "Unknown";
+};
+
+// const data: Document[] = [
+//   {
+//     id: 1,
+//     name: "Company Policy.pdf",
+//     size: "7.2MB",
+//     type: "PDF",
+//     department: "Finance",
+//     author: "Admin",
+//     date: "2025-03-20",
+//   },
+//   {
+//     id: 2,
+//     name: "Employee Handbook.docx",
+//     size: "5.1MB",
+//     type: "DOCX",
+//     department: "HR",
+//     author: "HR Manager",
+//     date: "2025-02-18",
+//   },
+//   {
+//     id: 3,
+//     name: "SOP - IT Security.pdf",
+//     size: "3.8MB",
+//     type: "PDF",
+//     department: "IT",
+//     author: "Security Team",
+//     date: "2025-02-15",
+//   },
+// ];
+
+// export default function FileUpload() {
+//   const [file, setFile] = useState<File | null>(null);
+//   const [uploading, setUploading] = useState(false);
+
+//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     if (e.target.files) {
+//       setFile(e.target.files[0]);
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     if (!file) return alert("Please select a file first.");
+
+//     const formData = new FormData();
+//     formData.append("file", file);
+
+//     setUploading(true);
+
+//     try {
+//       const response = await fetch("/api/upload", {
+//         method: "POST",
+//         body: formData,
+//       });
+
+//       if (!response.ok) throw new Error("Upload failed");
+
+//       const data = await response.json();
+//       alert("File uploaded successfully: " + data.fileUrl);
+//     } catch (error) {
+//       alert("Error uploading file");
+//     } finally {
+//       setUploading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="p-4 border rounded-lg">
+//       <input type="file" onChange={handleFileChange} />
+//       <button
+//         onClick={handleUpload}
+//         disabled={!file || uploading}
+//         className="bg-blue-500 text-white px-4 py-2 mt-2 rounded disabled:opacity-50"
+//       >
+//         {uploading ? "Uploading..." : "Upload"}
+//       </button>
+//     </div>
+//   );
+// }

@@ -17,6 +17,7 @@ interface Document {
   author: string;
   date: string;
   fileURL?: string;
+  postDocuments: (file: File) => Promise<void>;
 }
 
 export default function Documents() {
@@ -27,22 +28,22 @@ export default function Documents() {
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
-  const submittedDocument = data
-    ? [
-        {
-          id: Math.floor(Math.random() * 1000),
-          name: data.title || "Untitled Document",
-          size: "",
-          type: data.file
-            ? data.file.type.split("/")[1].toUpperCase()
-            : "Unknown",
-          department: data.department || "Unknown",
-          author: data.adminName || "Unknown",
-          date: data.publishedDate || new Date().toLocaleDateString(),
-          fileURL: data.file ? URL.createObjectURL(data.file) : "",
-        },
-      ]
-    : [];
+  // const submittedDocument = data
+  //   ? [
+  //       {
+  //         id: Math.floor(Math.random() * 1000),
+  //         name: data.title || "Untitled Document",
+  //         size: "",
+  //         type: data.file
+  //           ? data.file.type.split("/")[1].toUpperCase()
+  //           : "Unknown",
+  //         department: data.department || "Unknown",
+  //         author: data.adminName || "Unknown",
+  //         date: data.publishedDate || new Date().toLocaleDateString(),
+  //         fileURL: data.file ? URL.createObjectURL(data.file) : "",
+  //       },
+  //     ]
+  //   : [];
 
   return (
     <div>
@@ -126,18 +127,20 @@ const DocumentBox = ({
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
         <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
-          {doc.fileURL ? (
-            <embed
-              src={doc.fileURL}
-              type="application/pdf"
-              className="w-12 h-12 rounded-md"
-            />
-          ) : (
-            <span className="text-gray-500">{doc.type}</span>
-          )}
+          {<span className="text-gray-500">{doc.type}</span>}
         </div>
-        <div>
+        <div className="flex flex-col">
           <p className="font-semibold truncate w-40">{doc.name}</p>
+          <button className="text-sm truncate w-40 text-start">
+            <a
+              href={doc.fileURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm truncate w-40 text-start"
+            >
+              link
+            </a>
+          </button>
         </div>
       </div>
       <div className="flex-1 flex gap-x-4 justify-center">
@@ -215,11 +218,6 @@ const SearchDoc = ({
         (doc) => doc.department === selectedDepartment
       );
     }
-
-    console.log(
-      "Before sorting:",
-      filteredDocs.map((d) => d.date)
-    );
 
     // console.log(
     //   "Before sorting:",
