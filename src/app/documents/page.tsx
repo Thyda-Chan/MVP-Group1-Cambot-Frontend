@@ -33,7 +33,7 @@ export default function Documents() {
   return (
     <div>
       <div className={`${open ? "opacity-20" : ""}`}>
-        <Header sidebarOpen={open} toggleSidebar={() => setOpen(!open)} />
+        <Header />
         <div
           {...(open && { onClick: () => setOpen(false) })}
           className="text-primary bg-gradient-to-b from-white to-[#62C9F1] flex justify-center items-center"
@@ -78,11 +78,7 @@ export default function Documents() {
             ) : (
               <div className="space-y-4">
                 {filteredDocuments.map((doc) => (
-                  <DocumentBox
-                    key={doc.id}
-                    doc={doc}
-                    deleteFile={() => deleteFile(doc.id)}
-                  />
+                  <DocumentBox key={doc.id} doc={doc} />
                 ))}
               </div>
             )}
@@ -101,13 +97,7 @@ export default function Documents() {
   );
 }
 
-const DocumentBox = ({
-  doc,
-  deleteFile,
-}: {
-  doc: Document;
-  deleteFile: () => void;
-}) => {
+const DocumentBox = ({ doc }: { doc: Document }) => {
   const { deleteDocument } = useDocuments();
 
   return (
