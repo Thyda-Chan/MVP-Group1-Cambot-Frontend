@@ -14,6 +14,7 @@ interface Document {
   fileURL?: string;
   postDocuments: (file: File) => Promise<void>;
   deleteDocument: (param: string) => Promise<void>;
+  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
 }
 
 interface DocumentContextType {
@@ -22,6 +23,7 @@ interface DocumentContextType {
   loading: boolean;
   postDocuments: (file: File) => Promise<void>;
   deleteDocument: (param: string) => Promise<void>;
+  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -94,10 +96,10 @@ export const DocumentProvider = ({
     }
   };
 
-  const deleteDocument = async (param: string) => {
+  const deleteDocument = async (file_name: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/file/delete?file_name=${param}`,
+        `http://127.0.0.1:8000/file/delete?file_name=${file_name}`,
         {
           method: "DELETE",
         }
@@ -108,12 +110,30 @@ export const DocumentProvider = ({
       }
 
       setDocuments((prevDocuments) =>
-        prevDocuments.filter((doc) => doc.name !== param)
+        prevDocuments.filter((doc) => doc.name !== file_name)
       );
       alert("File deleted successfully");
     } catch (error) {
       console.error("Error deleting document:", error);
-      alert("Error deleting file" + param);
+      alert("Error deleting file" + file_name);
+    }
+  };
+
+  const updateDocument = async (file_name: string, new_file_name: string) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/file/update?file_name=${file_name}&new_file_name=${new_file_name}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Update failed");
+      }
+    } catch (error) {
+      console.error("Error updating document:", error);
+      alert("Error updating file" + file_name);
     }
   };
 
@@ -132,6 +152,7 @@ export const DocumentProvider = ({
         loading,
         postDocuments,
         deleteDocument,
+        updateDocument,
       }}
     >
       {children}

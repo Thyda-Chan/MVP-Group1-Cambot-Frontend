@@ -19,13 +19,14 @@ interface Document {
   fileURL?: string;
   postDocuments: (file: File) => Promise<void>;
   deleteDocument: (param: string) => Promise<void>;
+  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
 }
 
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const { data } = useSubmission();
   const [open, setOpen] = useState(false);
-  const { documents, fetchDocuments, loading } = useDocuments();
+  const { documents, loading, updateDocument } = useDocuments();
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
@@ -155,17 +156,6 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
           <Trash2 />
         </button>
       </div>
-    </div>
-  );
-};
-
-const FileUpload = () => {
-  return (
-    <div className="p-6 border-2 border-dashed border-blue-400 bg-[#a1d8eb] rounded-lg text-center">
-      <button className="px-4 py-2 bg-darkblue text-white rounded-xl">
-        Choose file
-      </button>
-      <p className="text-gray-500 mt-2">or drag file in here</p>
     </div>
   );
 };
