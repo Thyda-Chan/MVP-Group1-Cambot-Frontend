@@ -238,7 +238,7 @@ const SearchDoc = ({
       <div className="flex justify-between py-2 px-5 border rounded-3xl w-1/2 gap-2 bg-white focus:outline">
         <input
           type="search"
-          placeholder="Search User"
+          placeholder="Search Documents"
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
