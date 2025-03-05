@@ -1,17 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { FaBars } from "react-icons/fa";
+import { usePathname } from "next/navigation";
+import ChatbotSidebar from "@/app/chatbot/components/chatbotsidebar";
+import DefaultSidebar from "@/app/chatbot/components/sidebar";
 import UserAreaSelectBox from "@/app/chatbot/components/userprofilebox";
 import logo from "@/public/Assets_Images/cambotlogo.png";
 
-interface HeaderProps {
-  sidebarOpen: boolean;
-  toggleSidebar: () => void;
-}
+const Header = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
-const Header = ({ sidebarOpen, toggleSidebar }: HeaderProps) => {
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  const isChatbotPage = pathname.startsWith("/chatbot");
+
   return (
     <div>
       {/* Header with Navbar and Logo */}
@@ -37,6 +44,13 @@ const Header = ({ sidebarOpen, toggleSidebar }: HeaderProps) => {
           <UserAreaSelectBox />
         </div>
       </div>
+
+      {/* Conditionally Render Sidebar */}
+      {isChatbotPage ? (
+        <ChatbotSidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      ) : (
+        <DefaultSidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      )}
     </div>
   );
 };
