@@ -13,6 +13,7 @@ interface Document {
   date: string;
   fileURL?: string;
   postDocuments: (file: File) => Promise<void>;
+  deleteDocument: (param: string) => Promise<void>;
 }
 
 interface DocumentContextType {
@@ -20,6 +21,7 @@ interface DocumentContextType {
   fetchDocuments: () => Promise<void>;
   loading: boolean;
   postDocuments: (file: File) => Promise<void>;
+  deleteDocument: (param: string) => Promise<void>;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -92,19 +94,45 @@ export const DocumentProvider = ({
     }
   };
 
+  const deleteDocument = async (param: string) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/file/delete?file_name=${param}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Delete failed");
+      }
+
+      setDocuments((prevDocuments) =>
+        prevDocuments.filter((doc) => doc.name !== param)
+      );
+      alert("File deleted successfully");
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      alert("Error deleting file" + param);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
     if (data && data.file) {
       postDocuments(data.file);
-      console.log("File uploaded successfully");
-    } else {
-      console.log("No file to upload");
     }
-  }, []);
+  }, [data]);
 
   return (
     <DocumentContext.Provider
-      value={{ documents, fetchDocuments, loading, postDocuments }}
+      value={{
+        documents,
+        fetchDocuments,
+        loading,
+        postDocuments,
+        deleteDocument,
+      }}
     >
       {children}
     </DocumentContext.Provider>
@@ -128,86 +156,7 @@ const formatSize = (size: number) => {
 const getFileType = (fileName: string) => {
   const extension = fileName.split(".").pop();
   if (extension) {
-    return extension.toUpperCase(); // Example: "PDF", "DOCX"
+    return extension.toUpperCase();
   }
   return "Unknown";
 };
-
-// const data: Document[] = [
-//   {
-//     id: 1,
-//     name: "Company Policy.pdf",
-//     size: "7.2MB",
-//     type: "PDF",
-//     department: "Finance",
-//     author: "Admin",
-//     date: "2025-03-20",
-//   },
-//   {
-//     id: 2,
-//     name: "Employee Handbook.docx",
-//     size: "5.1MB",
-//     type: "DOCX",
-//     department: "HR",
-//     author: "HR Manager",
-//     date: "2025-02-18",
-//   },
-//   {
-//     id: 3,
-//     name: "SOP - IT Security.pdf",
-//     size: "3.8MB",
-//     type: "PDF",
-//     department: "IT",
-//     author: "Security Team",
-//     date: "2025-02-15",
-//   },
-// ];
-
-// export default function FileUpload() {
-//   const [file, setFile] = useState<File | null>(null);
-//   const [uploading, setUploading] = useState(false);
-
-//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     if (e.target.files) {
-//       setFile(e.target.files[0]);
-//     }
-//   };
-
-//   const handleUpload = async () => {
-//     if (!file) return alert("Please select a file first.");
-
-//     const formData = new FormData();
-//     formData.append("file", file);
-
-//     setUploading(true);
-
-//     try {
-//       const response = await fetch("/api/upload", {
-//         method: "POST",
-//         body: formData,
-//       });
-
-//       if (!response.ok) throw new Error("Upload failed");
-
-//       const data = await response.json();
-//       alert("File uploaded successfully: " + data.fileUrl);
-//     } catch (error) {
-//       alert("Error uploading file");
-//     } finally {
-//       setUploading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="p-4 border rounded-lg">
-//       <input type="file" onChange={handleFileChange} />
-//       <button
-//         onClick={handleUpload}
-//         disabled={!file || uploading}
-//         className="bg-blue-500 text-white px-4 py-2 mt-2 rounded disabled:opacity-50"
-//       >
-//         {uploading ? "Uploading..." : "Upload"}
-//       </button>
-//     </div>
-//   );
-// }

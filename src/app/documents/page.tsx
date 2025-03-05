@@ -18,6 +18,7 @@ interface Document {
   date: string;
   fileURL?: string;
   postDocuments: (file: File) => Promise<void>;
+  deleteDocument: (param: string) => Promise<void>;
 }
 
 export default function Documents() {
@@ -28,27 +29,11 @@ export default function Documents() {
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
-  // const submittedDocument = data
-  //   ? [
-  //       {
-  //         id: Math.floor(Math.random() * 1000),
-  //         name: data.title || "Untitled Document",
-  //         size: "",
-  //         type: data.file
-  //           ? data.file.type.split("/")[1].toUpperCase()
-  //           : "Unknown",
-  //         department: data.department || "Unknown",
-  //         author: data.adminName || "Unknown",
-  //         date: data.publishedDate || new Date().toLocaleDateString(),
-  //         fileURL: data.file ? URL.createObjectURL(data.file) : "",
-  //       },
-  //     ]
-  //   : [];
 
   return (
     <div>
       <div className={`${open ? "opacity-20" : ""}`}>
-        <Header />
+        <Header sidebarOpen={open} toggleSidebar={() => setOpen(!open)} />
         <div
           {...(open && { onClick: () => setOpen(false) })}
           className="text-primary bg-gradient-to-b from-white to-[#62C9F1] flex justify-center items-center"
@@ -123,6 +108,8 @@ const DocumentBox = ({
   doc: Document;
   deleteFile: () => void;
 }) => {
+  const { deleteDocument } = useDocuments();
+
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
@@ -171,7 +158,10 @@ const DocumentBox = ({
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
-        <button onClick={deleteFile} className="p-2 bg-gray-100 rounded-md">
+        <button
+          onClick={() => deleteDocument(doc.name)}
+          className="p-2 bg-gray-100 rounded-md"
+        >
           <Trash2 />
         </button>
       </div>
