@@ -5,8 +5,8 @@ import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
 import Button from "./components/Button";
 import { useEffect, useState } from "react";
 import { useSubmission } from "../upload/components/SubmissionContext";
-import pdfImg from "@/public/Assets_Images/pdf1.png";
 import Upload from "../upload/Upload";
+import { useDocuments } from "../context/DocumentContext";
 
 interface Document {
   id: number;
@@ -17,60 +17,33 @@ interface Document {
   author: string;
   date: string;
   fileURL?: string;
+  postDocuments: (file: File) => Promise<void>;
 }
 
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const { data } = useSubmission();
   const [open, setOpen] = useState(false);
-
-  const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
-  const submittedDocument = data
-    ? [
-        {
-          id: Math.floor(Math.random() * 1000),
-          name: data.title || "Untitled Document",
-          size: "",
-          type: data.file
-            ? data.file.type.split("/")[1].toUpperCase()
-            : "Unknown",
-          department: data.department || "Unknown",
-          author: data.adminName || "Unknown",
-          date: data.publishedDate || new Date().toLocaleDateString(),
-          fileURL: data.file ? URL.createObjectURL(data.file) : "",
-        },
-      ]
-    : [];
-
-  const [documents, setDocuments] = useState([
-    {
-      id: 1,
-      name: "00001_Policyd33safds212",
-      size: "7.2MB",
-      type: "PDF",
-      department: "Finance",
-      author: "Wathrak",
-      date: "February 20, 2025",
-    },
-    {
-      id: 2,
-      name: "00002_SOP",
-      size: "7.2MB",
-      type: "PDF",
-      department: "Legal",
-      author: "Wathrak",
-      date: "February 20, 2025",
-    },
-    ...submittedDocument,
-  ]);
-
+  const { documents, fetchDocuments, loading } = useDocuments();
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
-  const deleteFile = (id: number) => {
-    setDocuments((prevDocuments) =>
-      prevDocuments.filter((doc) => doc.id !== id)
-    );
-  };
+  const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
+  // const submittedDocument = data
+  //   ? [
+  //       {
+  //         id: Math.floor(Math.random() * 1000),
+  //         name: data.title || "Untitled Document",
+  //         size: "",
+  //         type: data.file
+  //           ? data.file.type.split("/")[1].toUpperCase()
+  //           : "Unknown",
+  //         department: data.department || "Unknown",
+  //         author: data.adminName || "Unknown",
+  //         date: data.publishedDate || new Date().toLocaleDateString(),
+  //         fileURL: data.file ? URL.createObjectURL(data.file) : "",
+  //       },
+  //     ]
+  //   : [];
 
   return (
     <div>
@@ -113,15 +86,21 @@ export default function Documents() {
             </div>
 
             <div className="font-semibold ml-6">All Documents</div>
-            <div className="space-y-4">
-              {filteredDocuments.map((doc) => (
-                <DocumentBox
-                  key={doc.id}
-                  doc={doc}
-                  deleteFile={() => deleteFile(doc.id)}
-                />
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-[40vh]">
+                <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredDocuments.map((doc) => (
+                  <DocumentBox
+                    key={doc.id}
+                    doc={doc}
+                    deleteFile={() => deleteFile(doc.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -131,7 +110,7 @@ export default function Documents() {
           open ? "opacity-100 h-auto" : "opacity-0 h-0"
         } transition-all duration-200 overflow-hidden top-12 right-0`}
       >
-        <Upload />
+        <Upload setOpen={setOpen} />
       </div>
     </div>
   );
@@ -144,23 +123,24 @@ const DocumentBox = ({
   doc: Document;
   deleteFile: () => void;
 }) => {
-  const isPDF = doc.type.toLowerCase() === "pdf";
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-md">
-          {isPDF ? (
-            <embed
-              src={doc.fileURL}
-              type="application/pdf"
-              className="w-12 h-12 rounded-md"
-            />
-          ) : (
-            <span className="text-gray-500">{doc.type}</span>
-          )}
+        <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
+          {<span className="text-gray-500">{doc.type}</span>}
         </div>
-        <div>
+        <div className="flex flex-col">
           <p className="font-semibold truncate w-40">{doc.name}</p>
+          <button className="text-sm truncate w-40 text-start">
+            <a
+              href={doc.fileURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm truncate w-40 text-start"
+            >
+              link
+            </a>
+          </button>
         </div>
       </div>
       <div className="flex-1 flex gap-x-4 justify-center">
@@ -220,13 +200,38 @@ const SearchDoc = ({
   setFilteredDocuments: (docs: Document[]) => void;
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDepartment, setSelectedDepartment] =
+    useState("All departments");
+  const [sortOrder, setSortOrder] = useState("Newest to Oldest");
 
   useEffect(() => {
-    const filteredDocs = documents.filter((document) =>
-      document.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredDocuments(filteredDocs);
-  }, [searchQuery, documents]);
+    let filteredDocs = [...documents]; // Create a new array
+
+    if (searchQuery) {
+      filteredDocs = filteredDocs.filter((doc) =>
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedDepartment !== "All departments") {
+      filteredDocs = filteredDocs.filter(
+        (doc) => doc.department === selectedDepartment
+      );
+    }
+
+    // console.log(
+    //   "Before sorting:",
+    //   filteredDocs.map((d) => d.date)
+    // );
+
+    filteredDocs.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredDocuments([...filteredDocs]); // Force state update
+  }, [searchQuery, selectedDepartment, sortOrder, documents]);
 
   return (
     <div className="flex gap-4">
@@ -235,7 +240,10 @@ const SearchDoc = ({
           type="search"
           placeholder="Search User"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            // console.log("AFter sorting:", searchQuery);
+          }}
           className="focus:outline-none w-full"
         />
         <button>
@@ -243,11 +251,24 @@ const SearchDoc = ({
         </button>
       </div>
 
-      <select className="p-2 border rounded-xl">
+      <select
+        className="p-2 border rounded-xl"
+        value={selectedDepartment}
+        onChange={(e) => setSelectedDepartment(e.target.value)}
+      >
         <option>All departments</option>
+        <option>Finance</option>
+        <option>Legal</option>
+        <option>HR</option>
       </select>
-      <select className="p-2 border rounded-xl">
-        <option>Newest to lowest</option>
+
+      <select
+        className="p-2 border rounded-xl"
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value)}
+      >
+        <option>Newest to Oldest</option>
+        <option>Oldest to Newest</option>
       </select>
       <button className="px-4 py-2 bg-darkblue text-white rounded-xl">
         Search

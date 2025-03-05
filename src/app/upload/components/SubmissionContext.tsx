@@ -21,9 +21,12 @@ const SubmissionContext = createContext<SubmissionContextType | undefined>(
 
 export const useSubmission = () => {
   const context = useContext(SubmissionContext);
+
   if (!context) {
     throw new Error("useSubmission must be used within a SubmissionProvider");
   }
+
+  // console.log("context::: " + JSON.stringify(context));
   return context;
 };
 
