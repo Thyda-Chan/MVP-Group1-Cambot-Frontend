@@ -2,11 +2,12 @@ import "./globals.css";
 import { ReactNode } from "react";
 import favicon from "@/public/Assets_Images/image.png"; // Import image
 import { SubmissionProvider } from "./upload/components/SubmissionContext";
+import { DocumentProvider } from "./context/DocumentContext";
 
 export const metadata = {
   title: "CamBot",
   icons: {
-    icon: favicon.src, 
+    icon: favicon.src,
   },
 };
 
@@ -23,7 +24,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body>
-        <SubmissionProvider>{children}</SubmissionProvider>
+        <SubmissionProvider>
+          <DocumentProvider>{children}</DocumentProvider>
+        </SubmissionProvider>
       </body>
     </html>
   );

@@ -6,12 +6,17 @@ import { useRouter } from "next/navigation";
 import Input from "./components/Input";
 import { useSubmission } from "./components/SubmissionContext";
 import { CloudUpload } from "lucide-react";
+import { useDocuments } from "../context/DocumentContext";
+interface UploadProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export default function Upload() {
+export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { setData } = useSubmission();
   const router = useRouter();
+  const { postDocuments } = useDocuments();
 
   const {
     register,
@@ -21,7 +26,8 @@ export default function Upload() {
 
   const onSubmit = (data: any) => {
     setData({ ...data, file });
-    router.push("/documents");
+    // router.push("/documents");
+    setOpen(false);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,9 +49,9 @@ export default function Upload() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* File Upload */}
             <div>Upload Your Documents</div>
-            <div className="border-2 border-dashed border-blue-300 rounded-lg gap-2 p-6 flex flex-col items-center justify-center cursor-pointer bg-[#c9e5ee]">
+            <div className="h-96 border-2 border-dashed border-blue-300 rounded-lg gap-2 p-6 flex flex-col items-center justify-center cursor-pointer bg-[#c9e5ee]">
               <label htmlFor="uploadInput">
-                <CloudUpload size={48} />
+                <CloudUpload size={96} />
               </label>
               <label
                 htmlFor="uploadInput"
@@ -70,7 +76,7 @@ export default function Upload() {
               )}
             </div>
 
-            <Input
+            {/* <Input
               label="Title"
               name="title"
               placeholder="Document title"
@@ -85,7 +91,6 @@ export default function Upload() {
               errors={errors}
             />
 
-            {/* Type & Department */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block font-medium">Document Type *</label>
@@ -124,13 +129,20 @@ export default function Upload() {
               type="date"
               register={register}
               errors={errors}
-            />
+            /> */}
 
             {/* Submit */}
             <div className="flex justify-center">
               <button
                 type="submit"
                 className="w-1/4 bg-green text-white py-2 rounded-lg"
+                onClick={() => {
+                  // console.log("file:::: " + file);
+                  for (const property in file) {
+                    console.log(`${property}: ${(file as any)[property]}`);
+                  }
+                  postDocuments(file as File);
+                }}
               >
                 Save
               </button>
