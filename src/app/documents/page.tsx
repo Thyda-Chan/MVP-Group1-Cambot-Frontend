@@ -99,16 +99,34 @@ export default function Documents() {
 }
 
 const DocumentBox = ({ doc }: { doc: Document }) => {
-  const { deleteDocument } = useDocuments();
+  const { deleteDocument, updateDocument } = useDocuments();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newFileName, setNewFileName] = useState(doc.name);
+
+  const updateDoc = async () => {
+    if (newFileName !== doc.name) {
+      await updateDocument(doc.name, newFileName);
+      setIsEditing(false);
+    }
+  };
 
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
         <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
-          {<span className="text-gray-500">{doc.type}</span>}
+          <span className="text-gray-500">{doc.type}</span>
         </div>
         <div className="flex flex-col">
-          <p className="font-semibold truncate w-40">{doc.name}</p>
+          {isEditing ? (
+            <input
+              type="text"
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+              className="font-semibold truncate w-40"
+            />
+          ) : (
+            <p className="font-semibold truncate w-40">{doc.name}</p>
+          )}
           <button className="text-sm truncate w-40 text-start">
             <a
               href={doc.fileURL}
@@ -143,9 +161,21 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
         </div>
       </div>
       <div className="flex-1 gap-2 flex justify-end">
-        <button className="px-4 py-2 mr-6 bg-green text-white rounded-3xl">
-          Update
-        </button>
+        {isEditing ? (
+          <button
+            onClick={updateDoc}
+            className="px-4 py-2 mr-8 bg-orange-400 text-white rounded-3xl"
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-4 py-2 mr-6 bg-green text-white rounded-3xl"
+          >
+            Update
+          </button>
+        )}
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
