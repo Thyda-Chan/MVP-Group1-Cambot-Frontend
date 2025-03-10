@@ -25,8 +25,8 @@ export default function ChatbotPage() {
         <link rel="preload" href="/fonts/ADLaMDisplay.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </Head>
 
-      {/* Parent container with full height and no scrolling */}
-      <div className="flex flex-col justify-center items-center h-screen overflow-hidden">
+      {/* Parent container with full height and no overflow */}
+      <div className="flex flex-col h-screen">
         {/* Show default chat page only if no groupId and no chat has started */}
         {!groupId && !hasStartedChat ? (
           <div className="flex flex-col justify-center items-center h-full w-full">
@@ -46,17 +46,13 @@ export default function ChatbotPage() {
             </p>
 
             {/* Chat Input */}
-            <div className="w-[600px] md:w-[600px]"> 
+            <div className="w-full max-w-[600px] px-4"> 
               <ChatInput onUserMessage={handleUserMessage} />
             </div>
           </div>
-        ) : null}
-
-        {/* Render ChatWindow only if chat has started or groupId is present */}
-        {(groupId || hasStartedChat) && (
-          <div className="flex flex-col h-full w-full">
-            <ChatWindow initialMessage={hasStartedChat ? userMessage : ''} />
-          </div>
+        ) : (
+          /* Render ChatWindow only if chat has started or groupId is present */
+          <ChatWindow initialMessage={hasStartedChat ? userMessage : ''} />
         )}
       </div>
     </>

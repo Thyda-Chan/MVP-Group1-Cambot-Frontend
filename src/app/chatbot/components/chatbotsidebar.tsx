@@ -77,8 +77,8 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         aria-hidden="true"
       ></div>
 
-      {/* Container 1: Search Bar and New Chat Button */}
-      <div className="h-[15%] p-4 flex flex-col space-y-4">
+      {/* Container 1: Search Bar and New Chat Button - Fixed height */}
+      <div className="flex-shrink-0 p-4 flex flex-col space-y-4">
         {/* Search Bar */}
         <div className="relative">
           <input
@@ -122,8 +122,8 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </button>
       </div>
 
-      {/* Container 2: Chat History Area */}
-      <div className="h-[50%] overflow-y-auto p-4">
+      {/* Container 2: Chat History Area - Flexible height with scroll */}
+      <div className="flex-grow overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4">Chat History</h2>
         <ul>
           {chatSessions.map((session) => (
@@ -141,8 +141,8 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </ul>
       </div>
 
-      {/* Container 3: Link References */}
-      <div className="h-[20%] flex flex-col p-4">
+      {/* Container 3: Link References - Fixed height */}
+      <div className="flex-shrink-0 p-4">
         <ul className="space-y-2">
           {referenceLinks.map((link, index) => (
             <li key={index}>
