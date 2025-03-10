@@ -1,6 +1,11 @@
-//chatsidebar.tsx
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+
+interface ChatSession {
+  group_id: string;
+  first_question: string;
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -8,12 +13,49 @@ interface SidebarProps {
 }
 
 const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
-  // Reusable link data
-  const chatHistoryLinks = [
-    { href: "/chatbot/history/session1", label: "Session 1" },
-    { href: "/chatbot/history/session2", label: "Session 2" },
-    { href: "/chatbot/history/session3", label: "Session 3" },
-  ];
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [activeSession, setActiveSession] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          throw new Error("User is not authenticated");
+        }
+
+        const response = await fetch("http://127.0.0.1:8000/chat/histories/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setChatSessions(data.data);
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
+    };
+
+    fetchChatHistory();
+  }, []);
+
+  const handleSessionClick = (groupId: string) => {
+    setActiveSession(groupId);
+    router.push(`/chatbot?groupId=${groupId}`);
+  };
+
+  const handleNewChat = () => {
+    setActiveSession(null); // Clear active session
+    router.push('/chatbot'); // Navigate to new chat
+  };
 
   const referenceLinks = [
     { href: "/help", label: "Help", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
@@ -56,7 +98,7 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         {/* New Chat Button */}
         <button
           className="w-fit flex items-center justify-center space-x-1 p-2 bg-[#99D4EB] text-[#005D7F] rounded-lg hover:bg-[#88C2D8] active:bg-[#77B0C5] transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
-          onClick={() => console.log("New Chat button clicked")}
+          onClick={handleNewChat}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -78,9 +120,16 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
       <div className="h-[50%] overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4">Chat History</h2>
         <ul>
-          {chatHistoryLinks.map((link, index) => (
-            <li key={index} className="mb-2">
-              <Link href={link.href}>{link.label}</Link>
+          {chatSessions.map((session) => (
+            <li key={session.group_id} className="mb-2">
+              <button
+                onClick={() => handleSessionClick(session.group_id)}
+                className={`w-full text-left p-2 hover:bg-gray-100 rounded ${
+                  activeSession === session.group_id ? 'bg-blue-100' : ''
+                }`}
+              >
+                {session.first_question}
+              </button>
             </li>
           ))}
         </ul>

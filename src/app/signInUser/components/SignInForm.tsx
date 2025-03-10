@@ -2,56 +2,69 @@
 
 import React, { useState } from 'react';
 import InputField from './InputField';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const SignInForm: React.FC = () => {
   const [workEmail, setWorkEmail] = useState('');
-  const [employeeName, setEmployeeName] = useState('');
-  const [employeeId, setEmployeeId] = useState('');
-  const [pinCode, setPinCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign-in logic here
-    console.log({ workEmail, employeeName, employeeId, pinCode });
-  };
+    setIsLoading(true);
 
+    try {
+      //this code send post request to backend for login enpoint
+      const response = await axios.post('http://127.0.0.1:8000/auth/login', {
+        username:workEmail,
+        password: password
+      });
+
+      //Handlle the token respone from backend by store in local
+      const {accessToken, RefreshToken } = response.data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', RefreshToken);
+
+      //redirect to chatbot page upon login
+      router.push('/chatbot')
+
+    } catch (error) {
+      console.error('Login Failed', (error as any)?.response?.data?.message || 'Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="p-8 w-full">
       <h1 className="text-xl font-bold text-center mb-6">Sign In</h1> {/* Smaller "Sign In" heading */}
       <form onSubmit={handleSubmit}>
+        {/* Work Email Field */}
         <InputField
           label="Work Email"
-          type="email"
-          placeholder="nichrich123@techassist.com"
+          type="text"
+          placeholder={workEmail ? '' : 'Type email'} // Placeholder disappears when typing
           value={workEmail}
           onChange={(e) => setWorkEmail(e.target.value)}
         />
+
+        {/* Password Field */}
         <InputField
-          label="Employee Name"
-          type="text"
-          placeholder="Deth Sokunbobo"
-          value={employeeName}
-          onChange={(e) => setEmployeeName(e.target.value)}
-        />
-        <InputField
-          label="Employee ID"
-          type="text"
-          placeholder="2024-381"
-          value={employeeId}
-          onChange={(e) => setEmployeeId(e.target.value)}
-        />
-        <InputField
-          label="PIN Code"
+          label="Password"
           type="password"
-          placeholder="**********"
-          value={pinCode}
-          onChange={(e) => setPinCode(e.target.value)}
+          placeholder={password ? '' : 'Type password'} // Placeholder disappears when typing
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
+
+        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          disabled = {isLoading}
         >
-          Sign In
+          {isLoading ? 'Signing In..' : 'Sign In'}
         </button>
       </form>
       <div className="mt-4 text-center">
