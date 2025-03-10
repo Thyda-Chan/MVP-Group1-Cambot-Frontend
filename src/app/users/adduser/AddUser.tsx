@@ -2,12 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useSubmission } from "@/app/upload/components/SubmissionContext";
 import Input from "@/app/upload/components/Input";
 import { useState } from "react";
+import { useUpload } from "@/app/context/UploadContext";
 
 export default function AddUser() {
-  const { setData } = useSubmission();
+  const { setData } = useUpload();
   const router = useRouter();
   const [selectedGender, setSelectedGender] = useState("");
 

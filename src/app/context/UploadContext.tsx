@@ -45,9 +45,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<SubmissionData | null>(null);
-  console.log("Data::" + JSON.stringify(data));
+  // console.log("Data::" + JSON.stringify(data));
   const author = data?.adminName;
-  console.log("author::" + author);
+  // console.log("author::" + author);
 
   const fetchDocuments = async () => {
     setLoading(true);
