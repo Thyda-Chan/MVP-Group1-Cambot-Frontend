@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import MessageList from '../components/message';
 import ChatInput from '../components/chatinput';
 import FileBox from '../components/filebox';
@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 interface ChatWindowProps {
   initialMessage: string;
+  onNewChat?: () => void;
 }
 
 interface Message {
@@ -15,11 +16,12 @@ interface Message {
   sender: 'user' | 'bot';
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentGroupId, setCurrentGroupId] = useState<string>('');
   const hasSentInitialMessage = useRef(false);
+  const lastFetchedGroupId = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('groupId');
@@ -39,12 +41,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
     return (
       <div key={fileName} className="mb-4">
         <div className="whitespace-pre-line">{formattedText}</div>
-        <FileBox fileName={fileName} publishDate="No publish date available" fileUrl="#" />
+        <FileBox fileName={fileName} publishDate="No publish date available" />
       </div>
     );
   }, []);
 
   const fetchChatHistory = useCallback(async (groupId: string) => {
+    if (lastFetchedGroupId.current === groupId) return;
+
+    setIsLoading(true);
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) throw new Error('User is not authenticated');
@@ -60,14 +65,23 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
+      setMessages([]);
+
       const formattedMessages = data.data.flatMap((chat: any) => [
         { text: chat.question, sender: 'user' },
-        { text: chat.answer.map((item: [string, string]) => formatBotResponse(item[1], item[0])), sender: 'bot' },
+        {
+          text: chat.answer.map((item: [string, string]) => formatBotResponse(item[1], item[0])),
+          sender: 'bot',
+        },
       ]);
+
       setMessages(formattedMessages);
+      lastFetchedGroupId.current = groupId;
     } catch (error) {
       console.error('Error fetching chat history:', error);
       setMessages([{ text: "Failed to load chat history. Please try again.", sender: 'bot' }]);
+    } finally {
+      setIsLoading(false);
     }
   }, [formatBotResponse]);
 
@@ -83,7 +97,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           question: query,
           groupId: currentGroupId || ""
         }),
@@ -92,7 +106,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
+
+      if (data.group_id && !currentGroupId) {
+        router.push(`/chatbot?groupId=${data.group_id}`, { scroll: false });
+
+        const firstQuestionHistory = JSON.parse(localStorage.getItem('chatSessions') || '[]');
+        const newSession = {
+          group_id: data.group_id,
+          first_question: query
+        };
+
+        if (!firstQuestionHistory.some((session: any) => session.group_id === data.group_id)) {
+          firstQuestionHistory.push(newSession);
+          localStorage.setItem('chatSessions', JSON.stringify(firstQuestionHistory));
+          window.dispatchEvent(new Event('chatSessionUpdate'));
+        }
+      }
+
       setCurrentGroupId(data.group_id);
+      lastFetchedGroupId.current = data.group_id;
 
       const botResponse = data.response.map((item: [string, string]) => formatBotResponse(item[1], item[0]));
       setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
@@ -102,7 +134,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentGroupId, formatBotResponse]);
+  }, [currentGroupId, formatBotResponse, router]);
 
   const handleSend = useCallback((query: string) => {
     if (!query.trim()) return;
@@ -111,15 +143,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
   }, [getChatbotResponse]);
 
   useEffect(() => {
-    if (!groupId) {
-      setMessages([]);
-      setCurrentGroupId('');
-      hasSentInitialMessage.current = false;
+    if (groupId) {
+      if (groupId !== lastFetchedGroupId.current) {
+        setCurrentGroupId(groupId);
+        fetchChatHistory(groupId);
+        hasSentInitialMessage.current = true;
+      }
     } else {
-      setCurrentGroupId(groupId);
-      fetchChatHistory(groupId);
+      if (lastFetchedGroupId.current !== null) {
+        setMessages([]);
+        setCurrentGroupId('');
+        hasSentInitialMessage.current = false;
+        lastFetchedGroupId.current = null;
+
+        if (onNewChat) {
+          onNewChat();
+        }
+      }
     }
-  }, [groupId, fetchChatHistory]);
+  }, [groupId, fetchChatHistory, initialMessage, onNewChat]);
 
   useEffect(() => {
     if (initialMessage && !hasSentInitialMessage.current && !groupId) {
@@ -135,7 +177,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage }) => {
 
   return (
     <div className="flex flex-col h-full w-full">
-      {/* Remove overflow-y-auto to disable scrolling */}
       <div className="flex-1 pb-20">
         <div className="flex flex-col space-y-4 p-4">
           <MessageList messages={messages} isLoading={isLoading} />

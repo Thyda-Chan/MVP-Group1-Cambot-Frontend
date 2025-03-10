@@ -11,7 +11,6 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
-  // No refs or scrolling logic here - all handled by parent component
   return (
     <div className="w-full">
       {messages.map((msg, index) => (
@@ -25,11 +24,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
               alt="Bot Avatar"
               width={40}
               height={40}
-              className="rounded-full bg-white p-1 mr-2" // Bot logo with white background
+              className="rounded-full bg-white p-1 mr-2"
             />
           )}
           <div
-            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} // Message box with shadow
+            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`}
           >
             {msg.text}
           </div>
@@ -44,7 +43,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
           )}
         </div>
       ))}
-
       {isLoading && (
         <div className="flex items-center space-x-2 text-gray-500 italic mb-4">
           <Image

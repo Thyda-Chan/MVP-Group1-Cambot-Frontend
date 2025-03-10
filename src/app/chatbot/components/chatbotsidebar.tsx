@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+'use client';
+
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -14,17 +16,21 @@ interface SidebarProps {
 
 const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const router = useRouter();
 
+  // Fetch chat history when component mounts and listen for changes
   useEffect(() => {
-    const fetchChatHistory = async () => {
+    // Function to load both backend and local storage sessions
+    const loadAllSessions = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
         if (!accessToken) {
           throw new Error("User is not authenticated");
         }
 
+        // Load sessions from API
         const response = await fetch("http://127.0.0.1:8000/chat/histories/", {
           method: "GET",
           headers: {
@@ -38,24 +44,77 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         }
 
         const data = await response.json();
-        setChatSessions(data.data);
+        
+        // Load local sessions that might not be synced yet
+        const localSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+        
+        // Combine and deduplicate sessions
+        const allSessions = [...data.data, ...localSessions];
+        const uniqueSessions = Array.from(
+          new Map(allSessions.map(session => [session.group_id, session])).values()
+        );
+        
+        setChatSessions(uniqueSessions);
       } catch (error) {
         console.error("Error fetching chat history:", error);
+        
+        // Fallback to local storage if API fails
+        const localSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+        setChatSessions(localSessions);
       }
     };
 
-    fetchChatHistory();
+    loadAllSessions();
+
+    // Set up event listener for storage changes
+    const handleStorageChange = () => {
+      loadAllSessions();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Create a custom event listener for chat session updates
+    window.addEventListener("chatSessionUpdate", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("chatSessionUpdate", handleStorageChange);
+    };
   }, []);
 
-  const handleSessionClick = (groupId: string) => {
+  // Set active session based on URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const groupIdFromUrl = urlParams.get('groupId');
+    if (groupIdFromUrl) {
+      setActiveSession(groupIdFromUrl);
+    } else {
+      setActiveSession(null);
+    }
+  }, []);
+
+  const handleSessionClick = useCallback((groupId: string) => {
     setActiveSession(groupId);
     router.push(`/chatbot?groupId=${groupId}`);
-  };
+    // Close sidebar on mobile after selection (optional)
+    if (window.innerWidth < 768) {
+      toggleSidebar();
+    }
+  }, [router, toggleSidebar]);
 
-  const handleNewChat = () => {
-    setActiveSession(null); // Clear active session
-    router.push('/chatbot'); // Navigate to new chat
-  };
+  const handleNewChat = useCallback(() => {
+    setActiveSession(null);
+    router.push('/chatbot');
+    // Close sidebar on mobile after selection (optional)
+    if (window.innerWidth < 768) {
+      toggleSidebar();
+    }
+  }, [router, toggleSidebar]);
+
+  // Filter sessions based on search query
+  const filteredSessions = chatSessions.filter(session => 
+    session.first_question.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const referenceLinks = [
     { href: "/help", label: "Help", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
@@ -71,22 +130,16 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } z-10 flex flex-col`}
     >
-      {/* Pseudo-element to cover the top-16 space */}
-      <div
-        className="absolute -top-16 left-0 w-64 h-16 bg-[#E6F7FE]"
-        aria-hidden="true"
-      ></div>
-
-      {/* Container 1: Search Bar and New Chat Button - Fixed height */}
+      <div className="absolute -top-16 left-0 w-64 h-16 bg-[#E6F7FE]" aria-hidden="true"></div>
       <div className="flex-shrink-0 p-4 flex flex-col space-y-4">
-        {/* Search Bar */}
         <div className="relative">
           <input
             type="text"
             placeholder="Search chat history..."
             className="w-full p-1 pl-3 pr-8 bg-[#E0E0E0] text-sm text-[#005D7F] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005D7F]"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {/* Search Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4 absolute right-2 top-1/2 transform -translate-y-1/2 text-[#005D7F]"
@@ -100,8 +153,6 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             />
           </svg>
         </div>
-
-        {/* New Chat Button */}
         <button
           className="w-fit flex items-center justify-center space-x-1 p-2 bg-[#99D4EB] text-[#005D7F] rounded-lg hover:bg-[#88C2D8] active:bg-[#77B0C5] transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
           onClick={handleNewChat}
@@ -121,12 +172,10 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           <span className="text-xs">New Chat</span>
         </button>
       </div>
-
-      {/* Container 2: Chat History Area - Flexible height with scroll */}
       <div className="flex-grow overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4">Chat History</h2>
         <ul>
-          {chatSessions.map((session) => (
+          {filteredSessions.map((session) => (
             <li key={session.group_id} className="mb-2">
               <button
                 onClick={() => handleSessionClick(session.group_id)}
@@ -140,8 +189,6 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           ))}
         </ul>
       </div>
-
-      {/* Container 3: Link References - Fixed height */}
       <div className="flex-shrink-0 p-4">
         <ul className="space-y-2">
           {referenceLinks.map((link, index) => (

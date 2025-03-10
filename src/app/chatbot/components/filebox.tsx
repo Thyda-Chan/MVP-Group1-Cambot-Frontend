@@ -3,10 +3,12 @@ import React from 'react';
 interface FileBoxProps {
   fileName: string;
   publishDate?: string;
-  fileUrl?: string;
 }
 
-const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate, fileUrl }) => {
+const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate }) => {
+  // Generate the file URL dynamically
+  const fileUrl = `https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/${fileName}`;
+
   return (
     <div
       className="bg-white p-4 rounded-lg shadow-md border border-gray-200
@@ -23,22 +25,16 @@ const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate, fileUrl }) => 
         />
         <div className="min-w-0 flex-1">
           {/* File Name */}
-          {fileUrl ? (
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#005D7F] text-sm font-medium hover:text-[#004A6B]
-                         truncate block"
-              title={fileName}
-            >
-              {fileName}
-            </a>
-          ) : (
-            <span className="text-[#005D7F] text-sm font-medium truncate block">
-              {fileName}
-            </span>
-          )}
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#005D7F] text-sm font-medium hover:text-[#004A6B]
+                       truncate block"
+            title={fileName}
+          >
+            {fileName}
+          </a>
           {/* Publish Date */}
           {publishDate && (
             <p className="text-xs text-gray-500 italic mt-1">Published: {publishDate}</p>
