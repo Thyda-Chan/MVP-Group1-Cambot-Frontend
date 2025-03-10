@@ -4,11 +4,12 @@ import Header from "@/app/chatbot/components/header";
 import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
 import Button from "./components/Button";
 import { useEffect, useState } from "react";
-import { useSubmission } from "../upload/components/SubmissionContext";
 import Upload from "../upload/Upload";
-import { useDocuments } from "../context/DocumentContext";
+import { useUpload } from "../context/UploadContext";
+import UpdateBox from "./components/UpdateBox";
 
-interface Document {
+// Define a basic type for the document that you pass to components
+export interface SimpleDocument {
   id: number;
   name: string;
   size: string;
@@ -17,19 +18,60 @@ interface Document {
   author: string;
   date: string;
   fileURL?: string;
-  postDocuments: (file: File) => Promise<void>;
-  deleteDocument: (param: string) => Promise<void>;
-  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
 }
 
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const { data } = useSubmission();
   const [open, setOpen] = useState(false);
-  const { documents, loading, updateDocument } = useDocuments();
-  const [filteredDocuments, setFilteredDocuments] = useState(documents);
+  const { documents, loading } = useUpload();
+  const [filteredDocuments, setFilteredDocuments] =
+    useState<SimpleDocument[]>(documents);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
+
+  const handleFilter = (
+    query: string,
+    department: string,
+    sortOrder: string
+  ) => {
+    let filteredDocs = [...documents];
+
+    if (query) {
+      filteredDocs = filteredDocs.filter((doc) =>
+        doc.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    if (department !== "All departments") {
+      filteredDocs = filteredDocs.filter(
+        (doc) => doc.department === department
+      );
+    }
+
+    filteredDocs.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredDocuments(filteredDocs);
+  };
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    if (open) {
+      window.scrollTo(0, 0);
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [open]);
 
   return (
     <div>
@@ -57,8 +99,9 @@ export default function Documents() {
             <div className="flex gap-4 items-center ml-6">
               <SearchDoc
                 placeholder="Search documents"
-                documents={documents}
+                documents={documents} // Pass the correct type here
                 setFilteredDocuments={setFilteredDocuments}
+                handleFilter={handleFilter}
               />
               <div className="flex items-center">
                 <button
@@ -79,7 +122,11 @@ export default function Documents() {
             ) : (
               <div className="space-y-4">
                 {filteredDocuments.map((doc) => (
-                  <DocumentBox key={doc.id} doc={doc} />
+                  <DocumentBox
+                    key={doc.id}
+                    doc={doc}
+                    setFilteredDocuments={setFilteredDocuments}
+                  />
                 ))}
               </div>
             )}
@@ -98,35 +145,34 @@ export default function Documents() {
   );
 }
 
-const DocumentBox = ({ doc }: { doc: Document }) => {
-  const { deleteDocument, updateDocument } = useDocuments();
+const DocumentBox = ({
+  doc,
+  setFilteredDocuments,
+}: {
+  doc: SimpleDocument;
+  setFilteredDocuments: React.Dispatch<React.SetStateAction<SimpleDocument[]>>;
+}) => {
+  const { deleteDocument, updateDocument } = useUpload();
   const [isEditing, setIsEditing] = useState(false);
-  const [newFileName, setNewFileName] = useState(doc.name);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const updateDoc = async () => {
-    if (newFileName !== doc.name) {
-      await updateDocument(doc.name, newFileName);
-      setIsEditing(false);
-    }
+  const handleSave = (updatedDoc: SimpleDocument) => {
+    // Call the update function to update the document
+    updateDocument(doc.name, updatedDoc.name); // Update logic can be adjusted based on how you're handling updates
+    setFilteredDocuments((prevDocs) =>
+      prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
+    );
   };
 
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
+      {/* Document details here */}
       <div className="flex-1 flex items-center gap-4">
         <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
           <span className="text-gray-500">{doc.type}</span>
         </div>
         <div className="flex flex-col">
-          {isEditing ? (
-            <input
-              type="text"
-              value={newFileName}
-              onChange={(e) => setNewFileName(e.target.value)}
-              className="font-semibold truncate w-40"
-            />
-          ) : (
-            <p className="font-semibold truncate w-40">{doc.name}</p>
-          )}
+          <p className="font-semibold truncate w-40">{doc.name}</p>
           <button className="text-sm truncate w-40 text-start">
             <a
               href={doc.fileURL}
@@ -148,7 +194,7 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
 
       <div className="flex-1 flex items-center gap-x-4">
         <div className="w-10 h-10 border bg-gray-200 rounded-full flex justify-center items-center">
-          W
+          A
         </div>
         <div>
           <p className="text-gray-600">{doc.author}</p>
@@ -161,21 +207,12 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
         </div>
       </div>
       <div className="flex-1 gap-2 flex justify-end">
-        {isEditing ? (
-          <button
-            onClick={updateDoc}
-            className="px-4 py-2 mr-8 bg-orange-400 text-white rounded-3xl"
-          >
-            Save
-          </button>
-        ) : (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="px-4 py-2 mr-6 bg-green text-white rounded-3xl"
-          >
-            Update
-          </button>
-        )}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 mr-6 bg-green text-white rounded-3xl"
+        >
+          Update
+        </button>
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
@@ -186,6 +223,14 @@ const DocumentBox = ({ doc }: { doc: Document }) => {
           <Trash2 />
         </button>
       </div>
+
+      {/* Modal to update document */}
+      <UpdateBox
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        doc={doc}
+        onSave={handleSave}
+      />
     </div>
   );
 };
@@ -194,10 +239,12 @@ const SearchDoc = ({
   placeholder,
   documents,
   setFilteredDocuments,
+  handleFilter,
 }: {
   placeholder: string;
-  documents: Document[];
-  setFilteredDocuments: (docs: Document[]) => void;
+  documents: SimpleDocument[];
+  setFilteredDocuments: (docs: SimpleDocument[]) => void;
+  handleFilter: (query: string, department: string, sortOrder: string) => void;
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] =
@@ -205,32 +252,7 @@ const SearchDoc = ({
   const [sortOrder, setSortOrder] = useState("Newest to Oldest");
 
   useEffect(() => {
-    let filteredDocs = [...documents]; // Create a new array
-
-    if (searchQuery) {
-      filteredDocs = filteredDocs.filter((doc) =>
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (selectedDepartment !== "All departments") {
-      filteredDocs = filteredDocs.filter(
-        (doc) => doc.department === selectedDepartment
-      );
-    }
-
-    // console.log(
-    //   "Before sorting:",
-    //   filteredDocs.map((d) => d.date)
-    // );
-
-    filteredDocs.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
-    });
-
-    setFilteredDocuments([...filteredDocs]); // Force state update
+    handleFilter(searchQuery, selectedDepartment, sortOrder);
   }, [searchQuery, selectedDepartment, sortOrder, documents]);
 
   return (
@@ -240,10 +262,7 @@ const SearchDoc = ({
           type="search"
           placeholder="Search Documents"
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            // console.log("AFter sorting:", searchQuery);
-          }}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="focus:outline-none w-full"
         />
         <button>
