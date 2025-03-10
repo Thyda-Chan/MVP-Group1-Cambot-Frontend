@@ -71,6 +71,12 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } z-10 flex flex-col`}
     >
+      {/* Pseudo-element to cover the top-16 space */}
+      <div
+        className="absolute -top-16 left-0 w-64 h-16 bg-[#E6F7FE]"
+        aria-hidden="true"
+      ></div>
+
       {/* Container 1: Search Bar and New Chat Button */}
       <div className="h-[15%] p-4 flex flex-col space-y-4">
         {/* Search Bar */}

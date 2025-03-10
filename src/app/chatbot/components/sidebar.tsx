@@ -13,6 +13,12 @@ const DefaultSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } z-10`}
     >
+      {/* Pseudo-element to cover the top-16 space */}
+      <div
+        className="absolute -top-16 left-0 w-64 h-16 bg-[#E6F7FE]"
+        aria-hidden="true"
+      ></div>
+
       <div className="p-4">
         <ul>
           <li>

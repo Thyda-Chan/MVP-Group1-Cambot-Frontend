@@ -26,7 +26,11 @@ const Header = () => {
         {/* Left Section: Navbar and Logo */}
         <div className="flex items-center space-x-10">
           {/* Hamburger Icon (FaBars) */}
-          <div className="ml-6">
+          <div
+            className={`ml-6 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+              sidebarOpen ? "-translate-x-64" : "translate-x-0"
+            }`}
+          >
             <FaBars
               onClick={toggleSidebar}
               className="text-xl cursor-pointer"
@@ -34,7 +38,11 @@ const Header = () => {
           </div>
 
           {/* Logo */}
-          <div className="font-semibold text-xl">
+          <div
+            className={`font-semibold text-xl transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+              sidebarOpen ? "-translate-x-64" : "translate-x-0"
+            }`}
+          >
             <Image src={logo} alt="Logo" width={100} height={40} priority />
           </div>
         </div>
@@ -51,6 +59,14 @@ const Header = () => {
       ) : (
         <DefaultSidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       )}
+
+      {/* Add a class to the body to shift content when sidebar is open */}
+      <style jsx global>{`
+        body {
+          transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-left: ${sidebarOpen ? "256px" : "0"};
+        }
+      `}</style>
     </div>
   );
 };
