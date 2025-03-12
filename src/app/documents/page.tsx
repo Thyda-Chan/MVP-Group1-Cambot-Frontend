@@ -6,7 +6,7 @@ import Button from "./components/Button";
 import { useEffect, useState } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
-import UpdateBox from "./components/UpdateBox";
+import UpdateDocument from "./components/UpdateDocument";
 
 export interface SimpleDocument {
   id: number;
@@ -224,7 +224,7 @@ const DocumentBox = ({
       </div>
 
       {/* Modal to update document */}
-      <UpdateBox
+      <UpdateDocument
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         doc={doc}
@@ -288,9 +288,6 @@ const SearchDoc = ({
         <option>Newest to Oldest</option>
         <option>Oldest to Newest</option>
       </select>
-      <button className="px-4 py-2 bg-darkblue text-white rounded-xl">
-        Search
-      </button>
     </div>
   );
 };

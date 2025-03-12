@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SimpleDocument } from "../page";
+import Input from "./Input";
 
 interface UpdateBoxProps {
   open: boolean;
@@ -8,7 +9,12 @@ interface UpdateBoxProps {
   onSave: (updatedDoc: SimpleDocument) => void;
 }
 
-const UpdateBox = ({ open, onClose, doc, onSave }: UpdateBoxProps) => {
+export default function UpdateBox({
+  open,
+  onClose,
+  doc,
+  onSave,
+}: UpdateBoxProps) {
   const [newTitle, setNewTitle] = useState(doc.name);
   const [newDocumentType, setNewDocumentType] = useState(doc.type);
   const [newDepartment, setNewDepartment] = useState(doc.department);
@@ -25,8 +31,36 @@ const UpdateBox = ({ open, onClose, doc, onSave }: UpdateBoxProps) => {
       date: newPublishedDate,
     };
     onSave(updatedDoc);
-    onClose(); // Close the modal
+    onClose();
   };
+
+  const inputFields = [
+    {
+      label: "New Title",
+      value: newTitle,
+      setter: setNewTitle,
+    },
+    {
+      label: "Document Type",
+      value: newDocumentType,
+      setter: setNewDocumentType,
+    },
+    {
+      label: "Department",
+      value: newDepartment,
+      setter: setNewDepartment,
+    },
+    {
+      label: "Admin Name",
+      value: newAdminName,
+      setter: setNewAdminName,
+    },
+    {
+      label: "Publish Date",
+      value: newPublishedDate,
+      setter: setNewPublishedDate,
+    },
+  ];
 
   return (
     open && (
@@ -34,40 +68,15 @@ const UpdateBox = ({ open, onClose, doc, onSave }: UpdateBoxProps) => {
         <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
           <h2 className="text-xl font-semibold mb-4">Edit Document</h2>
           <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Title"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="Document Type"
-              value={newDocumentType}
-              onChange={(e) => setNewDocumentType(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="Department"
-              value={newDepartment}
-              onChange={(e) => setNewDepartment(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="Admin Name"
-              value={newAdminName}
-              onChange={(e) => setNewAdminName(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="date"
-              value={newPublishedDate}
-              onChange={(e) => setNewPublishedDate(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
+            {inputFields.map(({ label, value, setter }) => (
+              <Input
+                key={label}
+                label={label}
+                value={value}
+                onChange={(e) => setter(e.target.value)}
+              />
+            ))}
+
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={onClose}
@@ -87,6 +96,4 @@ const UpdateBox = ({ open, onClose, doc, onSave }: UpdateBoxProps) => {
       </div>
     )
   );
-};
-
-export default UpdateBox;
+}

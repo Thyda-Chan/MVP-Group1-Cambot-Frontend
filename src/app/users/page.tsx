@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { ArrowDownUp, Search, Trash2 } from "lucide-react";
 import Header from "../chatbot/components/header";
-import AddUser from "./adduser/AddUser";
+import AddUser from "./components/AddUser";
 import { useUser } from "../context/UserContext";
-import UpdateUser from "./UpdateUser";
+import UpdateUser from "./components/UpdateUser";
 
 export default function Users() {
   const { loading, user, fetchUsers, deleteUser } = useUser();

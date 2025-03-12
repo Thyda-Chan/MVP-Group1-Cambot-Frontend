@@ -64,55 +64,20 @@ export default function AddUser() {
                 errors={errors}
               />
 
-              <fieldset>
-                <legend className="font-medium flex gap-1 mx-2">
-                  <div>Gender</div>
-                  <div className="text-red-500">*</div>
-                </legend>
-
-                <div className="flex gap-2 mt-2 mx-2">
-                  <div className="flex justify-center items-center relative gap-2">
-                    <div
-                      className={`${radioActive(selectedGender === "male")}`}
-                      onClick={() => setSelectedGender("male")}
-                    ></div>
-
-                    <input
-                      className="absolute left-0 opacity-0"
-                      type="radio"
-                      {...register("gender", { required: true })}
-                      value="male"
-                      checked={selectedGender === "male"}
-                      onChange={() => setSelectedGender("male")}
-                    />
-                    <label className="mr-4">Male</label>
-                  </div>
-
-                  <div className="flex justify-center items-center relative gap-2">
-                    <div
-                      className={`${radioActive(selectedGender === "female")}`}
-                      onClick={() => setSelectedGender("female")}
-                    ></div>
-
-                    <input
-                      className="absolute left-0 opacity-0"
-                      type="radio"
-                      {...register("gender", { required: true })}
-                      value="female"
-                      checked={selectedGender === "female"}
-                      onChange={() => setSelectedGender("female")}
-                    />
-                    <label className="mr-4">Female</label>
-                  </div>
-                </div>
-              </fieldset>
+              <InputOption
+                label="Role"
+                name="Select Employee Role"
+                register={register}
+                errors={errors}
+                options={["Admin", "Manager", "Staff"]}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Email"
+                label="Email/Username"
                 name="email"
-                placeholder="Input Email"
+                placeholder="Input Email/Username"
                 register={register}
                 errors={errors}
               />
@@ -123,52 +88,6 @@ export default function AddUser() {
                 register={register}
                 errors={errors}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <InputOption
-                label="Role"
-                name="Select Role"
-                register={register}
-                errors={errors}
-                options={["Admin", "Manager", "Staff"]}
-              />
-
-              <InputOption
-                label="Department"
-                name="Select Department"
-                register={register}
-                errors={errors}
-                options={["HR", "Finance"]}
-              />
-
-              <div className="flex flex-col gap-2">
-                <InputOption
-                  label="Security Questions"
-                  name="Select Security Questions"
-                  register={register}
-                  errors={errors}
-                  options={[
-                    "What city were you born in?",
-                    "What is your mother's maiden name?",
-                    "What was the name of your first pet?",
-                  ]}
-                />
-                <input
-                  className="w-full p-2 border rounded-lg text-[#9ca3af]"
-                  placeholder="Answer"
-                  {...register("answer", {
-                    required: "This answer is required",
-                  })}
-                />
-
-                {errors.answer && (
-                  <div className="text-red-500 text-sm">
-                    {typeof errors.answer.message === "string" &&
-                      errors.answer.message}
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="flex justify-center">
