@@ -152,12 +152,10 @@ const DocumentBox = ({
   setFilteredDocuments: React.Dispatch<React.SetStateAction<SimpleDocument[]>>;
 }) => {
   const { deleteDocument, updateDocument } = useUpload();
-  const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (updatedDoc: SimpleDocument) => {
-    // Call the update function to update the document
-    updateDocument(doc.name, updatedDoc.name); // Update logic can be adjusted based on how you're handling updates
+    updateDocument(doc.name, updatedDoc.name);
     setFilteredDocuments((prevDocs) =>
       prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
     );
@@ -165,7 +163,6 @@ const DocumentBox = ({
 
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
-      {/* Document details here */}
       <div className="flex-1 flex items-center gap-4">
         <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
           <span className="text-gray-500">{doc.type}</span>
@@ -223,7 +220,6 @@ const DocumentBox = ({
         </button>
       </div>
 
-      {/* Modal to update document */}
       <UpdateDocument
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}

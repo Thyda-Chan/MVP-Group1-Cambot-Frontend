@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import Input from "@/app/upload/components/Input";
 import { useState } from "react";
 import { useUpload } from "@/app/context/UploadContext";
+import { useUser } from "@/app/context/UserContext";
 
 export default function AddUser() {
-  const { setData } = useUpload();
-  const router = useRouter();
-  const [selectedGender, setSelectedGender] = useState("");
+  const { setUserData, createUser } = useUser();
 
   const {
     register,
@@ -18,9 +17,14 @@ export default function AddUser() {
   } = useForm();
 
   const onSubmit = (data: any) => {
-    setData({ ...data });
-    console.log(data);
-    // router.push("/users");
+    console.log("submit data: ", data);
+    if (data) {
+      setUserData({ ...data });
+      createUser(data);
+      // setOpen(false);
+    } else {
+      alert("invalid submit data");
+    }
   };
 
   const radioActive = (active: boolean) => {
@@ -66,7 +70,7 @@ export default function AddUser() {
 
               <InputOption
                 label="Role"
-                name="Select Employee Role"
+                name="role"
                 register={register}
                 errors={errors}
                 options={["Admin", "Manager", "Staff"]}

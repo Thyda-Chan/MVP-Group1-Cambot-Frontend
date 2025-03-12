@@ -36,31 +36,35 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
     {
       label: "Name",
       value: updatedUser.user_name,
+      name: "user_name",
     },
     {
       label: "employeeId",
       value: updatedUser.employee_id,
+      name: "employee_id",
     },
     {
       label: "Role",
       value: updatedUser.role,
+      name: "role",
     },
     {
       label: "Status",
       value: updatedUser.status,
+      name: "status",
     },
   ];
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-2xl w-96 text-[#015D7F]">
+      <div className="bg-white p-6 rounded-xl w-96 text-[#015D7F]">
         <h2 className="text-xl font-semibold mb-4">Update User Info</h2>
 
         <div className="space-y-4">
-          {inputFields.map(({ label, value }) => (
+          {inputFields.map(({ label, value, name }) => (
             <Input
-              key={label}
               label={label}
+              name={label}
               value={value}
               onChange={handleChange}
             />

@@ -7,7 +7,7 @@ import { useUser } from "../context/UserContext";
 import UpdateUser from "./components/UpdateUser";
 
 export default function Users() {
-  const { loading, user, fetchUsers, deleteUser } = useUser();
+  const { loading, user, fetchUsers, deleteUser, updateUser } = useUser();
   const [users, setUsers] = useState(user);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,100 +118,102 @@ export default function Users() {
             </div>
           </div>
 
-          <div className="min-h-[68vh] text-primary flex flex-col bg-white shadow-xl border border-gray-300 rounded-2xl p-6 w-full">
-            <div className="grid grid-cols-4 w-full py-2 font-semibold border-b-2 border-gray-300 text-center">
-              <button
-                onClick={() => sortUsers("user_name")}
-                className="flex items-center justify-center gap-2"
-              >
-                <div>Name</div>
-                <ArrowDownUp size={16} />
-              </button>
-              <div>User Roles</div>
-              <button
-                onClick={() => sortUsers("status")}
-                className="flex items-center justify-center gap-2"
-              >
-                <div>Active Status</div>
-                <ArrowDownUp size={16} />
-              </button>
+          {loading ? (
+            <div className="flex justify-center items-center h-[40vh]">
+              <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
             </div>
-
-            <div>
-              {displayedUsers.map((user) => (
-                <div
-                  key={`${user.userId}-${user.user_name}`}
-                  className="grid grid-cols-4 w-full py-4 items-center border-b-2 border-gray-300 text-center"
+          ) : (
+            <div className="min-h-[68vh] text-primary flex flex-col bg-white shadow-xl border border-gray-300 rounded-2xl p-6 w-full">
+              <div className="grid grid-cols-4 w-full py-2 font-semibold border-b-2 border-gray-300 text-center">
+                <button
+                  onClick={() => sortUsers("user_name")}
+                  className="flex items-center justify-center gap-2"
                 >
-                  <div className="flex items-center justify-start">
-                    <div className="w-10 h-10 mx-4 border bg-gray-200 rounded-full flex justify-center items-center">
-                      {user.user_name[0]}
-                    </div>
-                    <div className="flex flex-col text-left">
-                      <div className="font-semibold">{user.user_name}</div>
-                      <div className="text-sm">{user.employee_id}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <div
-                      className={`w-28 px-4 text-white rounded-3xl ${userRoles(
-                        user.role
-                      )}`}
-                    >
-                      {user.role}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-x-4 justify-center">
-                    <div className="rounded-full w-6 flex justify-center items-center bg-green">
-                      <div className="bg-white rounded-full w-3 h-3"></div>
-                    </div>
-                    <div>Active</div>
-                  </div>
-
-                  <div className="flex justify-center gap-8">
-                    <button
-                      className="px-4 py-2 bg-green text-white rounded-3xl"
-                      onClick={() => handleUpdateClick(user)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      onClick={() => deleteUser(user.userId)}
-                      className="p-2 bg-gray-100 rounded-md"
-                    >
-                      <Trash2 />
-                    </button>
-                  </div>
+                  <div>Name</div>
+                  <ArrowDownUp size={16} />
+                </button>
+                <div>User Roles</div>
+                <div className="flex items-center justify-center gap-2">
+                  Active Status
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="flex justify-center space-x-4 mt-6">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
-                Previous
-              </button>
-              <span>
-                Page {currentPage} of{" "}
-                {Math.ceil(filteredUsers.length / USERS_PER_PAGE)}
-              </span>
-              <button
-                disabled={
-                  currentPage ===
-                  Math.ceil(filteredUsers.length / USERS_PER_PAGE)
-                }
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
-                Next
-              </button>
+              <div>
+                {displayedUsers.map((user) => (
+                  <div
+                    key={`${user.userId}-${user.user_name}`}
+                    className="grid grid-cols-4 w-full py-4 items-center border-b-2 border-gray-300 text-center"
+                  >
+                    <div className="flex items-center justify-start">
+                      <div className="w-10 h-10 mx-4 border bg-gray-200 rounded-full flex justify-center items-center">
+                        {user.user_name[0]}
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <div className="font-semibold">{user.user_name}</div>
+                        <div className="text-sm">{user.employee_id}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <div
+                        className={`w-28 px-4 text-white rounded-3xl ${userRoles(
+                          user.role
+                        )}`}
+                      >
+                        {user.role}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-x-4 justify-center">
+                      <div className="rounded-full w-6 flex justify-center items-center bg-green">
+                        <div className="bg-white rounded-full w-3 h-3"></div>
+                      </div>
+                      <div>Active</div>
+                    </div>
+
+                    <div className="flex justify-center gap-8">
+                      <button
+                        className="px-4 py-2 bg-green text-white rounded-3xl"
+                        onClick={() => handleUpdateClick(user)}
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => deleteUser(user.userId)}
+                        className="p-2 bg-gray-100 rounded-md"
+                      >
+                        <Trash2 />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center space-x-4 mt-6">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of{" "}
+                  {Math.ceil(filteredUsers.length / USERS_PER_PAGE)}
+                </span>
+                <button
+                  disabled={
+                    currentPage ===
+                    Math.ceil(filteredUsers.length / USERS_PER_PAGE)
+                  }
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                >
+                  Next
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

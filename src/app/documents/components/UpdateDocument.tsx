@@ -65,12 +65,13 @@ export default function UpdateBox({
   return (
     open && (
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-1/3">
           <h2 className="text-xl font-semibold mb-4">Edit Document</h2>
           <div className="space-y-4">
             {inputFields.map(({ label, value, setter }) => (
               <Input
                 key={label}
+                name={label}
                 label={label}
                 value={value}
                 onChange={(e) => setter(e.target.value)}

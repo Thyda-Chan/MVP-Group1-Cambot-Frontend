@@ -2,10 +2,12 @@ import React from "react";
 
 export default function Input({
   label,
+  name,
   value,
   onChange,
 }: {
   label: string;
+  name: string;
   value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
 }) {
@@ -13,7 +15,7 @@ export default function Input({
     <div>
       <label htmlFor={label}>{label}</label>
       <input
-        id="title"
+        name={name}
         type="text"
         value={value}
         onChange={onChange}

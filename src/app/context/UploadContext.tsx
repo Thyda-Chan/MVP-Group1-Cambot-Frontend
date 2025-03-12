@@ -45,6 +45,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<SubmissionData | null>(null);
+
   // console.log("Data::" + JSON.stringify(data));
   // const author = data?.adminName;
   // console.log("author::" + author);
@@ -106,7 +107,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       alert("File uploaded successfully: " + fileData.file_url);
     } catch (error) {
       console.error("Error uploading document:", error);
-      alert("Error uploading file");
+      // alert("Error uploading file");
     } finally {
       setLoading(false);
     }
