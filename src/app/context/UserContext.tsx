@@ -13,9 +13,9 @@ interface User {
   firstName: string;
   lastName: string;
   username: string;
+  password: string;
   employeeId: string;
   role: string;
-  password: string;
   is_active: boolean;
 }
 
@@ -112,8 +112,8 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
       console.log("userData.firstName:", userData.firstName);
 
-      console.log("Status:", response.status); // Log status code
-      console.log("Response Data:", response.data); // Log the full response
+      console.log("Status:", response.status);
+      console.log("Response Data:", response.data);
 
       const newUser: User = {
         firstName: response.data.data.first_name,
@@ -145,6 +145,16 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       console.error("User is not authenticated");
       return;
     }
+
+    //   {
+    //     "userId": "7a48ff27-1fc0-488d-a574-87825e48704d",
+    //     "firstName":"Davann",
+    //     "lastName":"Tet",
+    //     "username":"davann31",
+    //     "password":"davann1234",
+    //     "employeeId":"id004",
+    //     "role": "manager"
+    // }
 
     setLoading(true);
     try {
