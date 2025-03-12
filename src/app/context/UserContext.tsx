@@ -12,20 +12,21 @@ interface User {
   userId: string;
   firstName: string;
   lastName: string;
-  user_name: string;
-  employee_id: string;
+  username: string;
+  employeeId: string;
   role: string;
   password: string;
+  is_active: boolean;
 }
 
 interface SubmissionUser {
   firstName: string;
   lastName: string;
-  address: string;
-  role: string;
-  email: string;
+  username: string;
   password: string;
+  employeeId: string;
 }
+
 interface UserContextType {
   loading: boolean;
   user: User[];
@@ -33,7 +34,7 @@ interface UserContextType {
   fetchUsers: () => Promise<void>;
   updateUser: (userData: User) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
-  createUser: (UserCreate: User) => Promise<void>;
+  createUser: (userData: SubmissionUser) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -67,7 +68,18 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      setUser(response.data.data || []);
+      const users: User[] = response.data.data.map((user: any) => ({
+        userId: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        username: user.user_name,
+        employeeId: user.employee_id,
+        role: user.role,
+        password: "",
+        is_active: user.is_active,
+      }));
+
+      setUser(users.filter((user) => user.is_active));
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -75,7 +87,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const createUser = async (user: SubmissionUser) => {
+  const createUser = async (userData: SubmissionUser) => {
     const accessToken = localStorage.getItem("accessToken");
 
     if (!accessToken) {
@@ -83,24 +95,44 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log("accessTK:", accessToken);
-    console.log("after accessTK data: ", user);
+    console.log("object user:", userData);
 
     setLoading(true);
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/user/`, user, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/user/",
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // setUser((prevUser) => [...prevUser, newUser]);
-      console.log("inside::: " + JSON.stringify(response));
+      console.log("userData.firstName:", userData.firstName);
 
-      // setUser(response.data.data);
+      console.log("Status:", response.status); // Log status code
+      console.log("Response Data:", response.data); // Log the full response
+
+      const newUser: User = {
+        firstName: response.data.data.first_name,
+        lastName: response.data.data.last_name,
+        username: response.data.data.username,
+        password: response.data.data.password,
+        employeeId: response.data.data.employee_id,
+        userId: "",
+        role: "",
+        is_active: response.data.data.is_active,
+      };
+
+      setUser((prevUsers) => [...prevUsers, newUser]);
     } catch (error) {
-      console.error("Error updating user:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected Error:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -149,15 +181,18 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
     setLoading(true);
     try {
-      await axios.delete(`http://127.0.0.1:8000/user/${userId}`, {
+      await axios.delete(`http://127.0.0.1:8000/user/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
+        data: { userId },
       });
       setUser((prevUsers) =>
         prevUsers.filter((user) => user.userId !== userId)
       );
+
+      alert("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
     } finally {

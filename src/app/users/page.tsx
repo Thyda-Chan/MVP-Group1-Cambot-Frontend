@@ -31,8 +31,10 @@ export default function Users() {
   }, [user]);
 
   const filteredUsers = Array.isArray(users)
-    ? users.filter((user) =>
-        user.user_name.toLowerCase().includes(searchQuery.toLowerCase())
+    ? users.filter(
+        (user) =>
+          user.username &&
+          user.username.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
@@ -45,8 +47,8 @@ export default function Users() {
     const sortedUsers = [...filteredUsers].sort((a, b) => {
       if (key === "user_name") {
         return sortOrder === "asc"
-          ? a.user_name.localeCompare(b.user_name)
-          : b.user_name.localeCompare(a.user_name);
+          ? a.username.localeCompare(b.username)
+          : b.username.localeCompare(a.username);
       }
       return 0;
     });
@@ -80,6 +82,16 @@ export default function Users() {
   };
 
   console.log(user);
+
+  const handleDeleteUser = (userId: string) => {
+    if (
+      window.confirm(`Are you sure you want to delete this user? ${userId}`)
+    ) {
+      deleteUser(userId).catch((error) => {
+        console.error("Error deleting user:", error);
+      });
+    }
+  };
 
   return (
     <div>
@@ -141,16 +153,16 @@ export default function Users() {
               <div>
                 {displayedUsers.map((user) => (
                   <div
-                    key={`${user.userId}-${user.user_name}`}
+                    key={`${user.userId}-${user.username}`}
                     className="grid grid-cols-4 w-full py-4 items-center border-b-2 border-gray-300 text-center"
                   >
                     <div className="flex items-center justify-start">
                       <div className="w-10 h-10 mx-4 border bg-gray-200 rounded-full flex justify-center items-center">
-                        {user.user_name[0]}
+                        {user.username[0]}
                       </div>
                       <div className="flex flex-col text-left">
-                        <div className="font-semibold">{user.user_name}</div>
-                        <div className="text-sm">{user.employee_id}</div>
+                        <div className="font-semibold">{user.username}</div>
+                        <div className="text-sm">{user.employeeId}</div>
                       </div>
                     </div>
 
@@ -179,7 +191,7 @@ export default function Users() {
                         Update
                       </button>
                       <button
-                        onClick={() => deleteUser(user.userId)}
+                        onClick={() => handleDeleteUser(user.userId)}
                         className="p-2 bg-gray-100 rounded-md"
                       >
                         <Trash2 />

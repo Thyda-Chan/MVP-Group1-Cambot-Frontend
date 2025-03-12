@@ -21,6 +21,7 @@ export default function AddUser() {
     if (data) {
       setUserData({ ...data });
       createUser(data);
+      console.log("createUser data:", data);
       // setOpen(false);
     } else {
       alert("invalid submit data");
@@ -45,14 +46,14 @@ export default function AddUser() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="First Name"
-                name="firstname"
+                name="firstName"
                 placeholder="Input First Name"
                 register={register}
                 errors={errors}
               />
               <Input
                 label="Last Name"
-                name="lastname"
+                name="lastName"
                 placeholder="Input Last Name"
                 register={register}
                 errors={errors}
@@ -61,26 +62,26 @@ export default function AddUser() {
 
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Address"
-                name="address"
-                placeholder="Input Address"
+                label="employeeId"
+                name="employeeId"
+                placeholder="Input employeeId"
                 register={register}
                 errors={errors}
               />
 
-              <InputOption
+              {/* <InputOption
                 label="Role"
                 name="role"
                 register={register}
                 errors={errors}
                 options={["Admin", "Manager", "Staff"]}
-              />
+              /> */}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Email/Username"
-                name="email"
+                name="username"
                 placeholder="Input Email/Username"
                 register={register}
                 errors={errors}
