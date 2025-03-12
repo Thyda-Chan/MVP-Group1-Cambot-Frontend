@@ -8,7 +8,7 @@ export default function Input({
 }: {
   label: string;
   name: string;
-  value: string;
+  value: any;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
 }) {
   return (

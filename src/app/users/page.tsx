@@ -72,12 +72,25 @@ export default function Users() {
     setIsPopupOpen(true);
   };
 
-  const handleUpdate = (updatedUser: any) => {
-    // Call your update logic here
-    console.log("Updated user:", updatedUser);
+  const handleUpdate = async (updatedUser: any) => {
+    try {
+      await updateUser(updatedUser);
+
+      setUsers((prevUsers) => {
+        return prevUsers.map((user) =>
+          user.userId === updatedUser.userId ? updatedUser : user
+        );
+      });
+
+      fetchUsers();
+
+      setIsPopupOpen(false);
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
   };
 
-  console.log(user);
+  // console.log(user);
 
   const handleDeleteUser = (userId: string) => {
     if (
@@ -259,7 +272,7 @@ export default function Users() {
           open ? "opacity-100 h-auto" : "opacity-0 h-0"
         } transition-all duration-200 overflow-hidden top-12 right-0`}
       >
-        <AddUser />
+        <AddUser setOpen={setOpen} />
       </div>
     </div>
   );

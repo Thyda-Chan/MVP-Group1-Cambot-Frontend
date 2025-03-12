@@ -7,7 +7,11 @@ import { useState } from "react";
 import { useUpload } from "@/app/context/UploadContext";
 import { useUser } from "@/app/context/UserContext";
 
-export default function AddUser() {
+interface AddUserProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function AddUser({ setOpen }: AddUserProps) {
   const { setUserData, createUser } = useUser();
 
   const {
@@ -22,17 +26,9 @@ export default function AddUser() {
       setUserData({ ...data });
       createUser(data);
       console.log("createUser data:", data);
-      // setOpen(false);
+      setOpen(false);
     } else {
       alert("invalid submit data");
-    }
-  };
-
-  const radioActive = (active: boolean) => {
-    if (active) {
-      return "bg-darkblue rounded-full h-4 w-4 justify-center items-center flex";
-    } else {
-      return "border-2 border-darkblue box-border rounded-full h-4 w-4 justify-center items-center flex";
     }
   };
 

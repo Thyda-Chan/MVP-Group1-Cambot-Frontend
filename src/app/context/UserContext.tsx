@@ -35,6 +35,7 @@ interface UserContextType {
   updateUser: (userData: User) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   createUser: (userData: SubmissionUser) => Promise<void>;
+  updateUserRole: (userId: string, newRole: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -110,10 +111,9 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      console.log("userData.firstName:", userData.firstName);
-
-      console.log("Status:", response.status);
-      console.log("Response Data:", response.data);
+      // console.log("userData.firstName:", userData.firstName);
+      // console.log("Status:", response.status);
+      // console.log("Response Data:", response.data);
 
       const newUser: User = {
         firstName: response.data.data.first_name,
@@ -146,21 +146,21 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    //   {
-    //     "userId": "7a48ff27-1fc0-488d-a574-87825e48704d",
-    //     "firstName":"Davann",
-    //     "lastName":"Tet",
-    //     "username":"davann31",
-    //     "password":"davann1234",
-    //     "employeeId":"id004",
-    //     "role": "manager"
-    // }
+    console.log("updateUser userData:", userData);
 
     setLoading(true);
     try {
       const response = await axios.put(
         `http://127.0.0.1:8000/user/`,
-        userData,
+        {
+          userId: userData.userId,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          username: userData.username,
+          password: userData.password,
+          employeeId: userData.employeeId,
+          role: userData.role,
+        },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -168,6 +168,8 @@ export default function UserProvider({ children }: { children: ReactNode }) {
           },
         }
       );
+
+      console.log("updateUser response:", response.data);
 
       setUser((prevUsers) =>
         prevUsers.map((user) =>
@@ -210,6 +212,41 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUserRole = async (userId: string, newRole: string) => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      console.error("User is not authenticated");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.put(
+        "http://127.0.0.1:8000/auth/change-role/",
+        { userId, role: newRole },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setUser((prevUsers) =>
+        prevUsers.map((user) =>
+          user.userId === userId ? { ...user, role: newRole } : user
+        )
+      );
+
+      alert("User Role Updated Successfully");
+    } catch (error) {
+      console.error("Error updating user role:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -220,6 +257,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         updateUser,
         deleteUser,
         createUser,
+        updateUserRole,
       }}
     >
       {children}
