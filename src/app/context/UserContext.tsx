@@ -79,7 +79,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         is_active: user.is_active,
       }));
 
-      setUser(users.filter((user) => user.is_active));
+      setUser(users);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {

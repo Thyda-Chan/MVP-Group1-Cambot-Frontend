@@ -22,14 +22,6 @@ export default function Users() {
   // console.log("User data:", user);
   // console.log("role::", user[0].role);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    setUsers(user);
-  }, [user]);
-
   const filteredUsers = Array.isArray(users)
     ? users.filter(
         (user) =>
@@ -49,6 +41,10 @@ export default function Users() {
         return sortOrder === "asc"
           ? a.username.localeCompare(b.username)
           : b.username.localeCompare(a.username);
+      } else if (key === "status") {
+        const statusA = a.is_active ? 1 : 0;
+        const statusB = b.is_active ? 1 : 0;
+        return sortOrder === "asc" ? statusB - statusA : statusA - statusB;
       }
       return 0;
     });
@@ -92,6 +88,19 @@ export default function Users() {
       });
     }
   };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (Array.isArray(user)) {
+      const sortedUsers = [...user].sort((a, b) => {
+        return (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0);
+      });
+      setUsers(sortedUsers);
+    }
+  }, [user]);
 
   return (
     <div>
@@ -145,9 +154,13 @@ export default function Users() {
                   <ArrowDownUp size={16} />
                 </button>
                 <div>User Roles</div>
-                <div className="flex items-center justify-center gap-2">
-                  Active Status
-                </div>
+                <button
+                  onClick={() => sortUsers("status")}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <div>Active Status</div>
+                  <ArrowDownUp size={16} />
+                </button>
               </div>
 
               <div>
@@ -177,10 +190,14 @@ export default function Users() {
                     </div>
 
                     <div className="flex gap-x-4 justify-center">
-                      <div className="rounded-full w-6 flex justify-center items-center bg-green">
+                      <div
+                        className={`${
+                          user.is_active ? "bg-green" : "bg-orange-400"
+                        } rounded-full w-6 flex justify-center items-center`}
+                      >
                         <div className="bg-white rounded-full w-3 h-3"></div>
                       </div>
-                      <div>Active</div>
+                      <div>{user.is_active ? "Active" : "Offline"}</div>
                     </div>
 
                     <div className="flex justify-center gap-8">
