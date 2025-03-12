@@ -8,7 +8,6 @@ import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateBox from "./components/UpdateBox";
 
-// Define a basic type for the document that you pass to components
 export interface SimpleDocument {
   id: number;
   name: string;

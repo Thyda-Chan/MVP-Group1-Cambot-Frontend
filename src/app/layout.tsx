@@ -2,6 +2,7 @@ import "./globals.css";
 import { ReactNode } from "react";
 import favicon from "@/public/Assets_Images/image.png"; // Import image
 import { UploadProvider } from "./context/UploadContext";
+import UserProvider from "./context/UserContext";
 
 export const metadata = {
   title: "CamBot",
@@ -23,7 +24,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body>
-        <UploadProvider>{children}</UploadProvider>
+        <UserProvider>
+          <UploadProvider>{children}</UploadProvider>
+        </UserProvider>
       </body>
     </html>
   );
