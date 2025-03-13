@@ -9,7 +9,7 @@ import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
 
 export interface SimpleDocument {
-  id: number;
+  id: string;
   name: string;
   size: string;
   type: string;
@@ -213,7 +213,7 @@ const DocumentBox = ({
           <ArrowDown />
         </button>
         <button
-          onClick={() => deleteDocument(doc.name)}
+          onClick={() => deleteDocument(doc.id)}
           className="p-2 bg-gray-100 rounded-md"
         >
           <Trash2 />

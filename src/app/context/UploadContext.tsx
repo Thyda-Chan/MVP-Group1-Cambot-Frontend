@@ -29,7 +29,7 @@ interface SubmissionData {
 }
 
 interface Document {
-  id: number;
+  id: string ;
   name: string;
   size: string;
   type: string;
