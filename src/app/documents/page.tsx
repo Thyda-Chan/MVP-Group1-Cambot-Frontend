@@ -98,7 +98,7 @@ export default function Documents() {
             <div className="flex gap-4 items-center ml-6">
               <SearchDoc
                 placeholder="Search documents"
-                documents={documents} // Pass the correct type here
+                documents={documents}
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
               />

@@ -171,7 +171,7 @@ export default function Users() {
                   onClick={() => sortUsers("status")}
                   className="flex items-center justify-center gap-2"
                 >
-                  <div>Active Status</div>
+                  <div>Status</div>
                   <ArrowDownUp size={16} />
                 </button>
               </div>
@@ -210,7 +210,7 @@ export default function Users() {
                       >
                         <div className="bg-white rounded-full w-3 h-3"></div>
                       </div>
-                      <div>{user.is_active ? "Active" : "Offline"}</div>
+                      <div>{user.is_active ? "Active" : "Disabled"}</div>
                     </div>
 
                     <div className="flex justify-center gap-8">
