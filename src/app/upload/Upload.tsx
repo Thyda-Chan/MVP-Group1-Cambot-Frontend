@@ -22,12 +22,9 @@ export default function Upload({ setOpen }: UploadProps) {
 
   const onSubmit = async (data: any) => {
     if (file) {
-      const title = data.title;
-      const newFile = new File([file], `${title}${file.name.substring(file.name.lastIndexOf('.'))}`, {
-        type: file.type,
-      });
-      const formData = { ...data, file: newFile };
+      const formData = { ...data, file };
       setData(formData);
+      // console.log("formData:: " + JSON.stringify(formData));
       postDocuments(formData);
       setOpen(false);
     }
