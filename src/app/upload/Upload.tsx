@@ -31,8 +31,7 @@ export default function Upload({ setOpen }: UploadProps) {
         }
       );
       const formData = { ...data, file: newFile };
-      // setData(formData);
-      postDocuments(formData);
+      setData(formData);
       setOpen(false);
     }
   };
