@@ -13,6 +13,10 @@ interface AddUserProps {
 
 export default function AddUser({ setOpen }: AddUserProps) {
   const { setUserData, createUser } = useUser();
+  const { role } = useUser();
+
+  const roleOptions =
+    role.toLocaleLowerCase() === "manager" ? ["Admin", "Staff"] : ["Staff"];
 
   const {
     register,
@@ -65,13 +69,13 @@ export default function AddUser({ setOpen }: AddUserProps) {
                 errors={errors}
               />
 
-              {/* <InputOption
+              <InputOption
                 label="Role"
                 name="role"
                 register={register}
                 errors={errors}
-                options={["Admin", "Manager", "Staff"]}
-              /> */}
+                options={roleOptions}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -131,7 +135,9 @@ const InputOption = ({
         {...register(name, { required: `${label} is required` })}
         className="w-full p-2 border rounded-lg text-[#9ca3af]"
       >
-        <option value="">-{name}-</option>
+        <option value="" disabled>
+          - {name} -
+        </option>
         {options.map((option, index) => (
           <option key={index} value={option.toLowerCase()}>
             {option}

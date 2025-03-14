@@ -169,7 +169,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         password: response.data.data.password,
         employeeId: response.data.data.employee_id,
         userId: "",
-        role: "",
+        role: response.data.data.role,
         is_active: response.data.data.is_active,
       };
 

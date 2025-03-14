@@ -69,13 +69,29 @@ export default function UpdateBox({
           <h2 className="text-xl font-semibold mb-4">Edit Document</h2>
           <div className="space-y-4">
             {inputFields.map(({ label, value, setter }) => (
-              <Input
-                key={label}
-                name={label}
-                label={label}
-                value={value}
-                onChange={(e) => setter(e.target.value)}
-              />
+              <div key={label}>
+                {label === "Document Type" ? (
+                  <select
+                    className="p-2 pr-0 border rounded-md"
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                  >
+                    <option disabled>All departments</option>
+                    <option>Human Resource</option>
+                    <option>Marketing</option>
+                    <option>Finance</option>
+                    <option>Legal</option>
+                    <option>IT</option>
+                  </select>
+                ) : (
+                  <Input
+                    name={label}
+                    label={label}
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                  />
+                )}
+              </div>
             ))}
 
             <div className="flex justify-end gap-4 mt-4">

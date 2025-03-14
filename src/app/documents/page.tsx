@@ -290,7 +290,7 @@ const SearchDoc = ({
         value={selectedDepartment}
         onChange={(e) => setSelectedDepartment(e.target.value)}
       >
-        <option>All departments</option>
+        <option disabled>All departments</option>
         <option>Human Resource</option>
         <option>Marketing</option>
         <option>Finance</option>
