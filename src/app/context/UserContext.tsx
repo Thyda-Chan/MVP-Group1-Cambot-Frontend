@@ -7,6 +7,25 @@ import React, {
   useContext,
 } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
+interface UserContextType {
+  loading: boolean;
+  user: User[];
+  setUserData: (user: SubmissionUser) => void;
+  fetchUsers: () => Promise<void>;
+  updateUser: (userData: User) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
+  createUser: (userData: SubmissionUser) => Promise<void>;
+  updateUserRole: (userId: string, newRole: string) => Promise<void>;
+  setWorkEmail: React.Dispatch<React.SetStateAction<string>>;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  password: string;
+  workEmail: string;
+  setRole: React.Dispatch<React.SetStateAction<string>>;
+  role: string;
+}
 
 interface User {
   userId: string;
@@ -27,17 +46,6 @@ interface SubmissionUser {
   employeeId: string;
 }
 
-interface UserContextType {
-  loading: boolean;
-  user: User[];
-  setUserData: (user: SubmissionUser) => void;
-  fetchUsers: () => Promise<void>;
-  updateUser: (userData: User) => Promise<void>;
-  deleteUser: (userId: string) => Promise<void>;
-  createUser: (userData: SubmissionUser) => Promise<void>;
-  updateUserRole: (userId: string, newRole: string) => Promise<void>;
-}
-
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function useUser() {
@@ -52,6 +60,45 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User[]>([]);
   const [userData, setUserData] = useState<SubmissionUser | null>(null);
+  const router = useRouter();
+  const [workEmail, setWorkEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [role, setRole] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/auth/login", {
+        username: workEmail,
+        password: password,
+      });
+
+      const { accessToken, RefreshToken, role } = response.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", RefreshToken);
+      localStorage.setItem("role", role);
+
+      //redirect to chatbot page upon login
+      router.push("/chatbot");
+    } catch (error) {
+      console.error(
+        "Login Failed",
+        (error as any)?.response?.data?.message || "Something went wrong"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
 
   const fetchUsers = async () => {
     const accessToken = localStorage.getItem("accessToken");
@@ -258,6 +305,13 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         deleteUser,
         createUser,
         updateUserRole,
+        setWorkEmail,
+        setPassword,
+        handleSubmit,
+        password,
+        workEmail,
+        setRole,
+        role,
       }}
     >
       {children}

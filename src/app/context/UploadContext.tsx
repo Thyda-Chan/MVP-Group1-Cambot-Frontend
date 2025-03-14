@@ -62,7 +62,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   // const author = data?.adminName;
   // console.log("author::" + author);
 
-  const fetchDocuments1 = async () => {
+  const fetchDocuments = async () => {
     setLoading(true);
     try {
       const response = await fetch("http://127.0.0.1:8000/file/list");
@@ -166,7 +166,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const fetchDocuments = async () => {
+  const fetchDocuments1 = async () => {
     // const fetchDocumentsFromDataBase = async () => {
     setLoading(true);
 

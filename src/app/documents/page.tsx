@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
+import { useUser } from "../context/UserContext";
 
 export interface SimpleDocument {
   id: string;
@@ -25,6 +26,9 @@ export default function Documents() {
   const { documents, loading } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
     useState<SimpleDocument[]>(documents);
+  const { user, fetchUsers, role } = useUser();
+
+  console.log("role:", role);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
@@ -114,7 +118,23 @@ export default function Documents() {
             </div>
 
             <div className="font-semibold ml-6">All Documents</div>
-            {loading ? (
+            {role !== "admin" ? (
+              loading ? (
+                <div className="flex justify-center items-center h-[40vh]">
+                  <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredDocuments.map((doc) => (
+                    <DocumentBoxUser
+                      key={doc.id}
+                      doc={doc}
+                      setFilteredDocuments={setFilteredDocuments}
+                    />
+                  ))}
+                </div>
+              )
+            ) : loading ? (
               <div className="flex justify-center items-center h-[40vh]">
                 <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
               </div>
@@ -174,7 +194,7 @@ const DocumentBox = ({
               href={doc.fileURL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm truncate w-40 text-start"
+              className="text-sm truncate w-40 text-start underline"
             >
               link
             </a>
@@ -271,9 +291,14 @@ const SearchDoc = ({
         onChange={(e) => setSelectedDepartment(e.target.value)}
       >
         <option>All departments</option>
+        <option>Human Resource</option>
+        <option>Marketing</option>
         <option>Finance</option>
         <option>Legal</option>
-        <option>HR</option>
+        <option>IT</option>
+        {/* {documents.map((doc) => (
+          <option>a{doc.department}</option>
+        ))} */}
       </select>
 
       <select
@@ -284,6 +309,68 @@ const SearchDoc = ({
         <option>Newest to Oldest</option>
         <option>Oldest to Newest</option>
       </select>
+    </div>
+  );
+};
+
+const DocumentBoxUser = ({
+  doc,
+  setFilteredDocuments,
+}: {
+  doc: SimpleDocument;
+  setFilteredDocuments: React.Dispatch<React.SetStateAction<SimpleDocument[]>>;
+}) => {
+  const { deleteDocument, updateDocument } = useUpload();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSave = (updatedDoc: SimpleDocument) => {
+    updateDocument(doc.name, updatedDoc.name);
+    setFilteredDocuments((prevDocs) =>
+      prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
+    );
+  };
+
+  return (
+    <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
+      <div className="flex-1 flex items-center gap-4">
+        <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
+          <span className="text-gray-500">{doc.type}</span>
+        </div>
+        <div className="flex flex-col">
+          <p className="font-semibold truncate w-40">{doc.name}</p>
+          <button className="text-sm truncate w-40 text-start">
+            <a
+              href={doc.fileURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm truncate w-40 text-start underline"
+            >
+              link
+            </a>
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 flex gap-x-4 justify-center">
+        <div className="border rounded-xl px-2 text-sm font-semibold bg-skyblue">
+          {doc.type}
+        </div>
+        <p className="text-sm text-darkblue">{doc.size}</p>
+      </div>
+
+      <div className="flex-1 flex items-center gap-x-4">
+        <div className="w-10 h-10 border bg-gray-200 rounded-full flex justify-center items-center">
+          {doc.author[0]}
+        </div>
+        <div>
+          <p className="text-gray-600">{doc.author}</p>
+          <p className="text-gray-500">{doc.date}</p>
+        </div>
+      </div>
+      <div className="flex-1">
+        <div className="w-fit min-w-20 px-3 py-1 text-center text-sm bg-blue-100 text-blue-600 rounded-md">
+          {doc.department}
+        </div>
+      </div>
     </div>
   );
 };
