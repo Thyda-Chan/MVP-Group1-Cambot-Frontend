@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
+import { DepartmentContext } from "../context/DepartmentConext";
 
 export interface SimpleDocument {
   id: string;
@@ -25,6 +26,9 @@ export default function Documents() {
   const { documents, loading } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
     useState<SimpleDocument[]>(documents);
+  
+  const { departments, loading: departmentsLoading, error } = DepartmentContext(); // Use the custom hook
+
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
@@ -101,6 +105,7 @@ export default function Documents() {
                 documents={documents}
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
+                departments={departments.map(dept => dept.name)}
               />
               <div className="flex items-center">
                 <button
@@ -235,11 +240,13 @@ const SearchDoc = ({
   documents,
   setFilteredDocuments,
   handleFilter,
+  departments
 }: {
   placeholder: string;
   documents: SimpleDocument[];
   setFilteredDocuments: (docs: SimpleDocument[]) => void;
   handleFilter: (query: string, department: string, sortOrder: string) => void;
+  departments: string[];
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] =
@@ -270,10 +277,12 @@ const SearchDoc = ({
         value={selectedDepartment}
         onChange={(e) => setSelectedDepartment(e.target.value)}
       >
-        <option>All departments</option>
-        <option>Finance</option>
-        <option>Legal</option>
-        <option>HR</option>
+       <option>All departments</option>
+        {departments.map((dept, index) => (
+          <option key={index} value={dept}>
+            {dept}
+          </option>
+        ))}
       </select>
 
       <select
