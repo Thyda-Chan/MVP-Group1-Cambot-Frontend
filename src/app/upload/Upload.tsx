@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { CloudUpload } from "lucide-react";
 import Input from "./components/Input";
 import { useUpload } from "../context/UploadContext";
+import { DepartmentContext } from "../context/DepartmentConext";
 
 interface UploadProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,6 +14,8 @@ interface UploadProps {
 export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const { setData, postDocuments } = useUpload();
+  const { departments, loading, error } = DepartmentContext(); // Use the custom hook
+
 
   const {
     register,
@@ -100,9 +103,12 @@ export default function Upload({ setOpen }: UploadProps) {
                 {...register("department", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
               >
-                <option value="">-Select Department-</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
+                <option value="">Select Department</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
+                ))}
               </select>
               {errors.department && (
                 <p className="text-red-500 text-sm">Required</p>
