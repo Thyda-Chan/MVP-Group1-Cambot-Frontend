@@ -1,5 +1,6 @@
 "use client";
 
+
 import {
   createContext,
   useContext,
@@ -34,7 +35,6 @@ interface Document {
   size: string;
   type: string;
   department: string;
-  author: string;
   date: string;
   fileURL?: string;
 }
@@ -136,18 +136,45 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const postDocuments = async (data: SubmissionData) => {
     setLoading(true);
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        throw new Error("User is not authenticated");
+      }
+
       const formData = new FormData();
+      
+      // Append file
       if (data.file) {
         formData.append("file", data.file);
       }
-      console.log(":xx:", formData);
-
+  
+      // Append each field individually
+      formData.append("title", data.title);
+      formData.append("document_type_id", data.documentType);
+      formData.append("department_id", data.department);
+      formData.append("publiced_date", data.publishedDate);
+  
+      console.log("Sending form data:", {
+        file: data.file?.name,
+        title: data.title,
+        document_type_id: data.documentType,
+        department_id: data.department,
+        published_date: data.publishedDate
+      });
+  
       const response = await fetch("http://127.0.0.1:8000/file/upload", {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
-
-      if (!response.ok) throw new Error("Upload failed");
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error(errorData.message || "Upload failed");
+      }
 
       const fileData = await response.json();
       const newDocument: Document = {
@@ -156,7 +183,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         size: formatSize(fileData.size),
         type: getFileType(fileData.file_name),
         department: data.department,
-        author: data.adminName,
         date: new Date().toLocaleDateString(),
         fileURL: fileData.file_url,
       };

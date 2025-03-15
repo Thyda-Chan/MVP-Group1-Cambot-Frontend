@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { CloudUpload } from "lucide-react";
 import Input from "./components/Input";
 import { useUpload } from "../context/UploadContext";
+import { DepartmentContext } from "../context/DepartmentContext";
+import { DocumentTypeContext } from "../context/DocumentTypeContext";
 
 interface UploadProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,6 +15,8 @@ interface UploadProps {
 export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const { setData, postDocuments } = useUpload();
+  const { departments, loading, error } = DepartmentContext();
+  const { documentTypes, loading: docTypesLoading, error: docTypesError } = DocumentTypeContext();
 
   const {
     register,
@@ -30,7 +34,16 @@ export default function Upload({ setOpen }: UploadProps) {
           type: file.type,
         }
       );
-      const formData = { ...data, file: newFile };
+      
+    const formData = {
+      title: data.title,
+      adminName: data.adminName,
+      documentType: data.documentType,
+      department: data.department,
+      publishedDate: data.publishedDate,
+      ...data,
+      file: newFile
+    };
       setData(formData);
       setOpen(false);
     }
@@ -84,13 +97,20 @@ export default function Upload({ setOpen }: UploadProps) {
               <select
                 {...register("documentType", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
+                disabled={docTypesLoading}
               >
                 <option value="">-Select Document Type-</option>
-                <option value="report">Report</option>
-                <option value="invoice">Invoice</option>
+                {documentTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
               </select>
               {errors.documentType && (
                 <p className="text-red-500 text-sm">Required</p>
+              )}
+              {docTypesError && (
+                <p className="text-red-500 text-sm">{docTypesError}</p>
               )}
             </div>
 
@@ -100,9 +120,12 @@ export default function Upload({ setOpen }: UploadProps) {
                 {...register("department", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
               >
-                <option value="">-Select Department-</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
+                <option value="">Select Department</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
+                ))}
               </select>
               {errors.department && (
                 <p className="text-red-500 text-sm">Required</p>
