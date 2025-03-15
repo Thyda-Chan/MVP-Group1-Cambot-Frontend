@@ -48,13 +48,10 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         // Load local sessions that might not be synced yet
         const localSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
         
-
-        // Combine and filter out any sessions that don’t have a valid group_id or messages
-        const combinedSessions = [...data.data, ...localSessions].filter(
-          session => session && session.group_id && session.first_question
-        );
+        // Combine and deduplicate sessions
+        const allSessions = [...data.data, ...localSessions];
         const uniqueSessions = Array.from(
-          new Map(combinedSessions.map(session => [session.group_id, session])).values()
+          new Map(allSessions.map(session => [session.group_id, session])).values()
         );
         
         setChatSessions(uniqueSessions);
@@ -119,13 +116,13 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     session.first_question.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // const referenceLinks = [
-  //   { href: "/help", label: "Help", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
-  //   { href: "/faq", label: "FAQ", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
-  //   { href: "/about", label: "About Cambot", icon: "M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" },
-  //   { href: "/privacy-policy", label: "Privacy Policy", icon: "M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" },
-  //   { href: "/settings", label: "Settings", icon: "M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" },
-  // ];
+  const referenceLinks = [
+    { href: "/help", label: "Help", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
+    { href: "/faq", label: "FAQ", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
+    { href: "/about", label: "About Cambot", icon: "M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" },
+    { href: "/privacy-policy", label: "Privacy Policy", icon: "M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" },
+    { href: "/settings", label: "Settings", icon: "M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" },
+  ];
 
   return (
     <div
@@ -176,35 +173,43 @@ const ChatbotSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </button>
       </div>
       <div className="flex-grow overflow-y-auto p-4">
-      <h2 className="text-lg font-semibold mb-4 sticky top-0 bg-[#E6F7FE] z-10">
-        Chat History
-      </h2>
-      <ul>
-        {filteredSessions.filter(session => session.first_question).length === 0 ? (
-          <p className="text-gray-500">No chat history yet.</p>
-        ) : (
-          filteredSessions
-            .filter(session => session.first_question) // only show valid ones
-            .map((session) => (
-              <li key={session.group_id} className="mb-2">
-                <button
-                  onClick={() => handleSessionClick(session.group_id)}
-                  className={`w-full text-left p-2 hover:bg-gray-100 rounded ${
-                    activeSession === session.group_id ? 'bg-blue-100' : ''
-                  }`}
-                >
-                  {session.first_question}
-                </button>
-              </li>
-            ))
-        )}
-      </ul>
-
-
-
+        <h2 className="text-lg font-semibold mb-4">Chat History</h2>
+        <ul>
+          {filteredSessions.map((session) => (
+            <li key={session.group_id} className="mb-2">
+              <button
+                onClick={() => handleSessionClick(session.group_id)}
+                className={`w-full text-left p-2 hover:bg-gray-100 rounded ${
+                  activeSession === session.group_id ? 'bg-blue-100' : ''
+                }`}
+              >
+                {session.first_question}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
       <div className="flex-shrink-0 p-4">
-          
+        <ul className="space-y-2">
+          {referenceLinks.map((link, index) => (
+            <li key={index}>
+              <Link
+                href={link.href}
+                className="flex items-center space-x-2 text-sm text-[#005D7F] p-1 rounded-lg hover:scale-105 active:scale-95 transition-all duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path fillRule="evenodd" d={link.icon} clipRule="evenodd" />
+                </svg>
+                <span>{link.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
