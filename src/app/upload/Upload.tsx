@@ -34,7 +34,16 @@ export default function Upload({ setOpen }: UploadProps) {
           type: file.type,
         }
       );
-      const formData = { ...data, file: newFile };
+      
+    const formData = {
+      title: data.title,
+      adminName: data.adminName,
+      documentType: data.documentType,
+      department: data.department,
+      publishedDate: data.publishedDate,
+      ...data,
+      file: newFile
+    };
       setData(formData);
       setOpen(false);
     }

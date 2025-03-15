@@ -94,17 +94,38 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const formData = new FormData();
+      
+      // Append file
       if (data.file) {
         formData.append("file", data.file);
       }
-      console.log(":xx:", formData);
-
+  
+      // Append each field individually
+      formData.append("title", data.title);
+      formData.append("created_by_id", data.adminName);
+      formData.append("document_type_id", data.documentType);
+      formData.append("department_id", data.department);
+      formData.append("publiced_date", data.publishedDate);
+  
+      console.log("Sending form data:", {
+        file: data.file?.name,
+        title: data.title,
+        created_by_id: data.adminName,
+        document_type_id: data.documentType,
+        department_id: data.department,
+        published_date: data.publishedDate
+      });
+  
       const response = await fetch("http://127.0.0.1:8000/file/upload", {
         method: "POST",
         body: formData,
       });
-
-      if (!response.ok) throw new Error("Upload failed");
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error(errorData.message || "Upload failed");
+      }
 
       const fileData = await response.json();
       const newDocument: Document = {
