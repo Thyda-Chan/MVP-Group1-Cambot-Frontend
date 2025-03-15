@@ -1,5 +1,6 @@
 "use client";
 
+
 import {
   createContext,
   useContext,
@@ -34,7 +35,6 @@ interface Document {
   size: string;
   type: string;
   department: string;
-  author: string;
   date: string;
   fileURL?: string;
 }
@@ -93,6 +93,11 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const postDocuments = async (data: SubmissionData) => {
     setLoading(true);
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        throw new Error("User is not authenticated");
+      }
+
       const formData = new FormData();
       
       // Append file
@@ -102,7 +107,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   
       // Append each field individually
       formData.append("title", data.title);
-      formData.append("created_by_id", data.adminName);
       formData.append("document_type_id", data.documentType);
       formData.append("department_id", data.department);
       formData.append("publiced_date", data.publishedDate);
@@ -110,7 +114,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       console.log("Sending form data:", {
         file: data.file?.name,
         title: data.title,
-        created_by_id: data.adminName,
         document_type_id: data.documentType,
         department_id: data.department,
         published_date: data.publishedDate
@@ -119,6 +122,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch("http://127.0.0.1:8000/file/upload", {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
   
       if (!response.ok) {
@@ -134,7 +140,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         size: formatSize(fileData.size),
         type: getFileType(fileData.file_name),
         department: data.department,
-        author: data.adminName,
         date: new Date().toLocaleDateString(),
         fileURL: fileData.file_url,
       };
