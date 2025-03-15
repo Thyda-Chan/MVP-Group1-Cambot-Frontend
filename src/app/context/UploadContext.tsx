@@ -1,6 +1,5 @@
 "use client";
 
-
 import {
   createContext,
   useContext,
@@ -50,6 +49,7 @@ interface Document {
   department: string;
   date: string;
   fileURL?: string;
+  author: string;
 }
 
 interface Department {
@@ -158,34 +158,34 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const formData = new FormData();
-      
+
       // Append file
       if (data.file) {
         formData.append("file", data.file);
       }
-  
+
       // Append each field individually
       formData.append("title", data.title);
       formData.append("document_type_id", data.documentType);
       formData.append("department_id", data.department);
       formData.append("publiced_date", data.publishedDate);
-  
+
       console.log("Sending form data:", {
         file: data.file?.name,
         title: data.title,
         document_type_id: data.documentType,
         department_id: data.department,
-        published_date: data.publishedDate
+        published_date: data.publishedDate,
       });
-  
+
       const response = await fetch("http://127.0.0.1:8000/file/upload", {
         method: "POST",
         body: formData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
-        }
+        },
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Upload error details:", errorData);
@@ -201,6 +201,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         department: data.department,
         date: new Date().toLocaleDateString(),
         fileURL: fileData.file_url,
+        author: "",
       };
 
       setDocuments((prevDocuments) => [...prevDocuments, newDocument]);
