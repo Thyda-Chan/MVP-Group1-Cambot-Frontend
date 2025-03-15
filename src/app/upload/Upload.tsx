@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { CloudUpload } from "lucide-react";
 import Input from "./components/Input";
 import { useUpload } from "../context/UploadContext";
+import { DepartmentContext } from "../context/DepartmentContext";
+import { DocumentTypeContext } from "../context/DocumentTypeContext";
 
 interface UploadProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,7 +33,16 @@ export default function Upload({ setOpen }: UploadProps) {
           type: file.type,
         }
       );
-      const formData = { ...data, file: newFile };
+
+      const formData = {
+        title: data.title,
+        adminName: data.adminName,
+        documentType: data.documentType,
+        department: data.department,
+        publishedDate: data.publishedDate,
+        ...data,
+        file: newFile,
+      };
       setData(formData);
       setOpen(false);
     }
@@ -81,6 +92,7 @@ export default function Upload({ setOpen }: UploadProps) {
               <select
                 {...register("documentType", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
+                // disabled={docTypesLoading}
               >
                 <option value="">-Select Document Type-</option>
                 {/* <option value="report">Report</option>
@@ -95,6 +107,9 @@ export default function Upload({ setOpen }: UploadProps) {
               {errors.documentType && (
                 <p className="text-red-500 text-sm">Required</p>
               )}
+              {/* {docTypesError && (
+                <p className="text-red-500 text-sm">{docTypesError}</p>
+              )} */}
             </div>
 
             <div>

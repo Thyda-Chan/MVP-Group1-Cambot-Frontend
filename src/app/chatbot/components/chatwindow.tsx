@@ -39,7 +39,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       ));
 
     return (
-      <div key={fileName} className="mb-4">
+      <div key={fileName} className="mb-8">
         <div className="whitespace-pre-line">{formattedText}</div>
         <FileBox fileName={fileName} publishDate="No publish date available" />
       </div>

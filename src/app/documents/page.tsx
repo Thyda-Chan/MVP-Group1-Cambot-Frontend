@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
+import { DepartmentContext } from "../context/DepartmentContext";
 import { useUser } from "../context/UserContext";
 
 export interface SimpleDocument {
@@ -23,12 +24,30 @@ export interface SimpleDocument {
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
+<<<<<<< HEAD
   const { documents, loading, department } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
     useState<SimpleDocument[]>(documents);
+=======
+  const { documents, loading } = useUpload();
+  const [filteredDocuments, setFilteredDocuments] = useState<SimpleDocument[]>(documents);
+
+>>>>>>> a8c3478566a6ff7e8db492381d065eb22c7bf314
   const { user, fetchUsers, role } = useUser();
 
   // console.log("role:", role);
+
+  const {
+    departments,
+    loading: departmentsLoading,
+    error,
+  } = DepartmentContext(); // Use the custom hook
+
+  const {
+    departments,
+    loading: departmentsLoading,
+    error,
+  } = DepartmentContext(); // Use the custom hook
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
@@ -106,6 +125,7 @@ export default function Documents() {
                 documents={documents}
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
+                departments={departments.map((dept) => dept.name)}
               />
               <div className="flex items-center">
                 <button
@@ -256,11 +276,13 @@ const SearchDoc = ({
   documents,
   setFilteredDocuments,
   handleFilter,
+  departments,
 }: {
   placeholder: string;
   documents: SimpleDocument[];
   setFilteredDocuments: (docs: SimpleDocument[]) => void;
   handleFilter: (query: string, department: string, sortOrder: string) => void;
+  departments: string[];
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] =
@@ -295,8 +317,15 @@ const SearchDoc = ({
         }}
       >
         <option>All departments</option>
+<<<<<<< HEAD
         {department.map((dept, index) => (
           <option key={index}>{dept.name}</option>
+=======
+        {departments.map((dept, index) => (
+          <option key={index} value={dept}>
+            {dept}
+          </option>
+>>>>>>> a8c3478566a6ff7e8db492381d065eb22c7bf314
         ))}
       </select>
 
