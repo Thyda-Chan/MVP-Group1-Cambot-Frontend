@@ -67,6 +67,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       const data = await response.json();
       setMessages([]);
 
+      // If there's no actual data, redirect to new chat
+      if (!data.data || data.data.length === 0) {
+        router.push('/chatbot', { scroll: false });
+        setCurrentGroupId('');
+        lastFetchedGroupId.current = null;
+        
+        // Clean up localStorage by removing this invalid session
+        const localSessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
+        const updatedSessions = localSessions.filter((session: any) => session.group_id !== groupId);
+        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+        window.dispatchEvent(new Event('chatSessionUpdate'));
+        
+        return;
+      }
+
       const formattedMessages = data.data.flatMap((chat: any) => [
         { text: chat.question, sender: 'user' },
         {
@@ -83,9 +98,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
     } finally {
       setIsLoading(false);
     }
-  }, [formatBotResponse]);
+  }, [formatBotResponse, router]);
 
   const getChatbotResponse = useCallback(async (query: string) => {
+    if (!query || query.trim() === '') return;
+    
     setIsLoading(true);
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -110,16 +127,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       if (data.group_id && !currentGroupId) {
         router.push(`/chatbot?groupId=${data.group_id}`, { scroll: false });
 
-        const firstQuestionHistory = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-        const newSession = {
-          group_id: data.group_id,
-          first_question: query
-        };
+        // Only save to local storage if we have a valid question
+        if (query && query.trim() !== "") {
+          const firstQuestionHistory = JSON.parse(localStorage.getItem('chatSessions') || '[]');
+          const newSession = {
+            group_id: data.group_id,
+            first_question: query
+          };
 
-        if (!firstQuestionHistory.some((session: any) => session.group_id === data.group_id)) {
-          firstQuestionHistory.push(newSession);
-          localStorage.setItem('chatSessions', JSON.stringify(firstQuestionHistory));
-          window.dispatchEvent(new Event('chatSessionUpdate'));
+          if (!firstQuestionHistory.some((session: any) => session.group_id === data.group_id)) {
+            firstQuestionHistory.push(newSession);
+            localStorage.setItem('chatSessions', JSON.stringify(firstQuestionHistory));
+            window.dispatchEvent(new Event('chatSessionUpdate'));
+          }
         }
       }
 
@@ -164,7 +184,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
   }, [groupId, fetchChatHistory, initialMessage, onNewChat]);
 
   useEffect(() => {
-    if (initialMessage && !hasSentInitialMessage.current && !groupId) {
+    if (initialMessage && initialMessage.trim() !== '' && !hasSentInitialMessage.current && !groupId) {
       hasSentInitialMessage.current = true;
       setMessages([{ text: initialMessage, sender: 'user' }]);
       getChatbotResponse(initialMessage);
