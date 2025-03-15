@@ -70,13 +70,13 @@ export default function Upload({ setOpen }: UploadProps) {
             register={register}
             errors={errors}
           />
-          <Input
+          {/* <Input
             label="Admin's Name"
             name="adminName"
             placeholder="Your name"
             register={register}
             errors={errors}
-          />
+          /> */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>

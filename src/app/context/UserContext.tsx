@@ -94,7 +94,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("role");
+    const storedRole = localStorage.getItem("role")?.toLowerCase();
     if (storedRole) {
       setRole(storedRole);
     }

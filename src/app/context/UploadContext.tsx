@@ -62,7 +62,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   // const author = data?.adminName;
   // console.log("author::" + author);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments1 = async () => {
     setLoading(true);
     try {
       const response = await fetch("http://127.0.0.1:8000/file/list");
@@ -83,6 +83,49 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       }));
 
       setDocuments(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDocuments = async () => {
+    // const fetchDocumentsFromDataBase = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/database/fetch_all/",
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("data::", data[0].id);
+
+      const documents: Document[] = data.map((item: any, index: number) => ({
+        id: item.id,
+        created_by_id: item.created_by_id,
+        document_type_id: item.document_type_id,
+        department_id: item.department_id,
+        name: item.title,
+        date: item.publiced_date,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        author: data?.adminName || "Admin",
+        type: "pdf",
+        fileURL: `https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/${item.id}.pdf`,
+      }));
+
+      // https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/08485333-d8fa-4f6b-8757-89590c1331f8.pdf
+      // https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/a063e260-bac7-49e0-a448-0fdfb24a0fb1.pdf
+
+      setDocuments(documents);
+      console.log("documents::", documents[0].id);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -163,49 +206,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Error updating document:", error);
       alert("Error updating file");
-    }
-  };
-
-  const fetchDocuments1 = async () => {
-    // const fetchDocumentsFromDataBase = async () => {
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/database/fetch_all/",
-        {
-          method: "GET",
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("data::", data[0].id);
-
-      const documents: Document[] = data.map((item: any, index: number) => ({
-        id: item.id,
-        created_by_id: item.created_by_id,
-        document_type_id: item.document_type_id,
-        department_id: item.department_id,
-        name: item.title,
-        date: item.publiced_date,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        author: data?.adminName || "Admin",
-        type: "pdf",
-        fileURL: `https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/${item.id}.pdf`,
-      }));
-
-      // https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/08485333-d8fa-4f6b-8757-89590c1331f8.pdf
-      // https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/a063e260-bac7-49e0-a448-0fdfb24a0fb1.pdf
-
-      setDocuments(documents);
-      console.log("documents::", documents[0].id);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -72,7 +72,7 @@ export default function UpdateBox({
               <div key={label}>
                 {label === "Document Type" ? (
                   <select
-                    className="p-2 pr-0 border rounded-md"
+                    className="p-2 pr-0 border rounded-md w-full"
                     value={value}
                     onChange={(e) => setter(e.target.value)}
                   >

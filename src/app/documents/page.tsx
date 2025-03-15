@@ -28,7 +28,7 @@ export default function Documents() {
     useState<SimpleDocument[]>(documents);
   const { user, fetchUsers, role } = useUser();
 
-  console.log("role:", role);
+  // console.log("role:", role);
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
