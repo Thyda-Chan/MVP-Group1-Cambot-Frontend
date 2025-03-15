@@ -23,7 +23,7 @@ export interface SimpleDocument {
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
-  const { documents, loading } = useUpload();
+  const { documents, loading, department } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
     useState<SimpleDocument[]>(documents);
   const { user, fetchUsers, role } = useUser();
@@ -40,8 +40,9 @@ export default function Documents() {
     let filteredDocs = [...documents];
 
     if (query) {
-      filteredDocs = filteredDocs.filter((doc) =>
-        doc.name.toLowerCase().includes(query.toLowerCase())
+      filteredDocs = filteredDocs.filter(
+        (doc) =>
+          doc.name && doc.name.toLowerCase().includes(query.toLowerCase())
       );
     }
 
@@ -265,6 +266,7 @@ const SearchDoc = ({
   const [selectedDepartment, setSelectedDepartment] =
     useState("All departments");
   const [sortOrder, setSortOrder] = useState("Newest to Oldest");
+  const { department } = useUpload();
 
   useEffect(() => {
     handleFilter(searchQuery, selectedDepartment, sortOrder);
@@ -288,17 +290,14 @@ const SearchDoc = ({
       <select
         className="p-2 border rounded-xl"
         value={selectedDepartment}
-        onChange={(e) => setSelectedDepartment(e.target.value)}
+        onChange={(e) => {
+          setSelectedDepartment(e.target.value);
+        }}
       >
-        <option disabled>All departments</option>
-        <option>Human Resource</option>
-        <option>Marketing</option>
-        <option>Finance</option>
-        <option>Legal</option>
-        <option>IT</option>
-        {/* {documents.map((doc) => (
-          <option>a{doc.department}</option>
-        ))} */}
+        <option>All departments</option>
+        {department.map((dept, index) => (
+          <option key={index}>{dept.name}</option>
+        ))}
       </select>
 
       <select

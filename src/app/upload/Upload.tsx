@@ -12,7 +12,8 @@ interface UploadProps {
 
 export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
-  const { setData, postDocuments } = useUpload();
+  const { setData, postDocuments, loading, documentType, department } =
+    useUpload();
 
   const {
     register,
@@ -66,28 +67,30 @@ export default function Upload({ setOpen }: UploadProps) {
           <Input
             label="Title"
             name="title"
-            placeholder="Document title"
+            placeholder="Document Title"
             register={register}
             errors={errors}
           />
-          {/* <Input
-            label="Admin's Name"
-            name="adminName"
-            placeholder="Your name"
-            register={register}
-            errors={errors}
-          /> */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-medium">Document Type *</label>
+              <label className="font-medium flex">
+                <p className="mr-1">Document Type</p>
+                <p className="text-red-500">*</p>
+              </label>
               <select
                 {...register("documentType", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
               >
                 <option value="">-Select Document Type-</option>
-                <option value="report">Report</option>
+                {/* <option value="report">Report</option>
                 <option value="invoice">Invoice</option>
+                <option value="policies">Policies</option>
+                <option value="memo">Memo</option>
+                <option value="sop">SOP</option> */}
+                {documentType.map((doctype, index) => (
+                  <option key={index}>{doctype.name}</option>
+                ))}
               </select>
               {errors.documentType && (
                 <p className="text-red-500 text-sm">Required</p>
@@ -95,14 +98,18 @@ export default function Upload({ setOpen }: UploadProps) {
             </div>
 
             <div>
-              <label className="block font-medium">Department *</label>
+              <label className="font-medium flex">
+                <p className="mr-1">Department</p>
+                <p className="text-red-500">*</p>
+              </label>
               <select
                 {...register("department", { required: true })}
                 className="w-full p-2 border rounded-lg text-[#9ca3af]"
               >
                 <option value="">-Select Department-</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
+                {department.map((dept, index) => (
+                  <option key={index}>{dept.name}</option>
+                ))}
               </select>
               {errors.department && (
                 <p className="text-red-500 text-sm">Required</p>
