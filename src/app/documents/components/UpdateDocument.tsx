@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { SimpleDocument } from "../page";
 import Input from "./Input";
+import { useUser } from "../../context/UserContext";
+
+interface User{
+  id: string,
+  username: string
+}
 
 interface UpdateBoxProps {
   open: boolean;
@@ -15,19 +21,23 @@ export default function UpdateBox({
   doc,
   onSave,
 }: UpdateBoxProps) {
+  const { user: users, fetchUsers } = useUser();
   const [newTitle, setNewTitle] = useState(doc.name);
   const [newDocumentType, setNewDocumentType] = useState(doc.type);
   const [newDepartment, setNewDepartment] = useState(doc.department);
-  const [newAdminName, setNewAdminName] = useState(doc.author);
+  const [newAdminId, setNewAdminId] = useState(doc.created_by_id);
   const [newPublishedDate, setNewPublishedDate] = useState(doc.date);
 
+
   const handleSave = () => {
+    const selectedUser = users.find(user => user.userId === newAdminId);
     const updatedDoc = {
       ...doc,
       name: newTitle,
       type: newDocumentType,
       department: newDepartment,
-      author: newAdminName,
+      created_by_id: newAdminId,
+      author: selectedUser?.username || '',
       date: newPublishedDate,
     };
     onSave(updatedDoc);
@@ -49,11 +59,6 @@ export default function UpdateBox({
       label: "Department",
       value: newDepartment,
       setter: setNewDepartment,
-    },
-    {
-      label: "Admin Name",
-      value: newAdminName,
-      setter: setNewAdminName,
     },
     {
       label: "Publish Date",

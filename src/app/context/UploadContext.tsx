@@ -35,6 +35,8 @@ interface Document {
   size: string;
   type: string;
   department: string;
+  author: string;
+  created_by_id: string;
   date: string;
   fileURL?: string;
 }
@@ -185,6 +187,8 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         department: data.department,
         date: new Date().toLocaleDateString(),
         fileURL: fileData.file_url,
+        author: data.adminName,
+        created_by_id: "unknown", // Replace with actual created_by_id if available
       };
 
       setDocuments((prevDocuments) => [...prevDocuments, newDocument]);

@@ -17,6 +17,7 @@ export interface SimpleDocument {
   type: string;
   department: string;
   author: string;
+  created_by_id: string;
   date: string;
   fileURL?: string;
 }
@@ -30,6 +31,10 @@ export default function Documents() {
   const { user, fetchUsers, role } = useUser();
 
   // console.log("role:", role);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
 
   const {
     departments,
@@ -37,11 +42,6 @@ export default function Documents() {
     error,
   } = DepartmentContext(); // Use the custom hook
 
-  const {
-    departments,
-    loading: departmentsLoading,
-    error,
-  } = DepartmentContext(); // Use the custom hook
 
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
