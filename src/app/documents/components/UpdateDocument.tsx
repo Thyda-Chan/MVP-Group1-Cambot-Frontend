@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SimpleDocument } from "../page";
 import Input from "./Input";
+import { useUpload } from "@/app/context/UploadContext";
 
 interface UpdateBoxProps {
   open: boolean;
@@ -20,6 +21,7 @@ export default function UpdateBox({
   const [newDepartment, setNewDepartment] = useState(doc.department);
   const [newAdminName, setNewAdminName] = useState(doc.author);
   const [newPublishedDate, setNewPublishedDate] = useState(doc.date);
+  const { documentType, department } = useUpload();
 
   const handleSave = () => {
     const updatedDoc = {
@@ -71,18 +73,33 @@ export default function UpdateBox({
             {inputFields.map(({ label, value, setter }) => (
               <div key={label}>
                 {label === "Document Type" ? (
-                  <select
-                    className="p-2 pr-0 border rounded-md w-full"
-                    value={value}
-                    onChange={(e) => setter(e.target.value)}
-                  >
-                    <option disabled>All departments</option>
-                    <option>Human Resource</option>
-                    <option>Marketing</option>
-                    <option>Finance</option>
-                    <option>Legal</option>
-                    <option>IT</option>
-                  </select>
+                  <div>
+                    <label>Document Type</label>
+                    <select
+                      className="p-2 pr-0 border rounded-md w-full"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                    >
+                      {documentType.map((doctype, index) => (
+                        <option key={index}>{doctype.name}</option>
+                      ))}
+                      <option>Other</option>
+                    </select>
+                  </div>
+                ) : label === "Department" ? (
+                  <div>
+                    <label>Department</label>
+                    <select
+                      className="p-2 pr-0 border rounded-md w-full"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                    >
+                      {department.map((dept, index) => (
+                        <option key={index}>{dept.name}</option>
+                      ))}
+                      <option>Other</option>
+                    </select>
+                  </div>
                 ) : (
                   <Input
                     name={label}

@@ -8,6 +8,19 @@ import {
   ReactNode,
 } from "react";
 
+interface UploadContextType {
+  documents: Document[];
+  fetchDocuments: () => Promise<void>;
+  loading: boolean;
+  postDocuments: (data: SubmissionData) => Promise<void>;
+  deleteDocument: (param: string) => Promise<void>;
+  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
+  data: SubmissionData | null;
+  setData: (data: SubmissionData) => void;
+  department: Department[];
+  documentType: DocumentType[];
+}
+
 interface DocumentDatabase {
   id: string;
   created_by_id: string;
@@ -34,21 +47,23 @@ interface Document {
   size: string;
   type: string;
   department: string;
-  author: string;
   date: string;
   fileURL?: string;
+  author: string;
 }
 
-interface UploadContextType {
-  documents: Document[];
-  fetchDocuments: () => Promise<void>;
-  loading: boolean;
-  postDocuments: (data: SubmissionData) => Promise<void>;
-  deleteDocument: (param: string) => Promise<void>;
-  updateDocument: (file_name: string, new_file_name: string) => Promise<void>;
-  data: SubmissionData | null;
-  setData: (data: SubmissionData) => void;
-  // fetchDocumentsFromDataBase: () => Promise<void>;
+interface Department {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DocumentType {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
@@ -57,12 +72,14 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<SubmissionData | null>(null);
+  const [department, setDepartment] = useState<Department[]>([]);
+  const [documentType, setDocumentType] = useState<DocumentType[]>([]);
 
   // console.log("Data::" + JSON.stringify(data));
   // const author = data?.adminName;
   // console.log("author::" + author);
 
-  const fetchDocuments1 = async () => {
+  const fetchDocuments = async () => {
     setLoading(true);
     try {
       const response = await fetch("http://127.0.0.1:8000/file/list");
@@ -90,8 +107,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const fetchDocuments = async () => {
-    // const fetchDocumentsFromDataBase = async () => {
+  const fetchDocuments1 = async () => {
     setLoading(true);
 
     try {
@@ -105,7 +121,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("data::", data[0].id);
+      // console.log("data::", data[0].id);
 
       const documents: Document[] = data.map((item: any, index: number) => ({
         id: item.id,
@@ -125,7 +141,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       // https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/a063e260-bac7-49e0-a448-0fdfb24a0fb1.pdf
 
       setDocuments(documents);
-      console.log("documents::", documents[0].id);
+      // console.log("documents::", documents[0].id);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -136,18 +152,45 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const postDocuments = async (data: SubmissionData) => {
     setLoading(true);
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        throw new Error("User is not authenticated");
+      }
+
       const formData = new FormData();
+
+      // Append file
       if (data.file) {
         formData.append("file", data.file);
       }
-      console.log(":xx:", formData);
+
+      // Append each field individually
+      formData.append("title", data.title);
+      formData.append("document_type_id", data.documentType);
+      formData.append("department_id", data.department);
+      formData.append("publiced_date", data.publishedDate);
+
+      console.log("Sending form data:", {
+        file: data.file?.name,
+        title: data.title,
+        document_type_id: data.documentType,
+        department_id: data.department,
+        published_date: data.publishedDate,
+      });
 
       const response = await fetch("http://127.0.0.1:8000/file/upload", {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
-      if (!response.ok) throw new Error("Upload failed");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error(errorData.message || "Upload failed");
+      }
 
       const fileData = await response.json();
       const newDocument: Document = {
@@ -156,9 +199,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         size: formatSize(fileData.size),
         type: getFileType(fileData.file_name),
         department: data.department,
-        author: data.adminName,
         date: new Date().toLocaleDateString(),
         fileURL: fileData.file_url,
+        author: "",
       };
 
       setDocuments((prevDocuments) => [...prevDocuments, newDocument]);
@@ -191,7 +234,6 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       alert("File deleted successfully");
     } catch (error) {
       console.error("Error deleting document:", error);
-      alert("Error deleting file");
     }
   };
 
@@ -209,12 +251,73 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchDepartments = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/department/list/", {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      const dept: Department[] = data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+      }));
+
+      // console.log("dept:", dept);
+      setDepartment(dept);
+    } catch (error) {
+      console.error("Error fetching department:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDocumentType = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/docs/list/", {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      const doctype: Department[] = data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+      }));
+
+      console.log("doc type:", doctype);
+      setDocumentType(doctype);
+    } catch (error) {
+      console.error("Error fetching Document Type:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
     if (data?.file) {
       postDocuments(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    fetchDepartments();
+    fetchDocumentType();
+  }, []);
 
   return (
     <UploadContext.Provider
@@ -227,6 +330,8 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         updateDocument,
         data,
         setData,
+        department,
+        documentType,
       }}
     >
       {children}
