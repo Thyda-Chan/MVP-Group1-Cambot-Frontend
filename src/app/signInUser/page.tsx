@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Footer from '../components/footer';
+import Header from '../components/header';
 import SignInForm from './components/SignInForm';
 import Image from 'next/image';
 import bot from '@/public/Assets_Images/bot.png'; // Import the bot image

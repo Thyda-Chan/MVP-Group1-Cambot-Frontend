@@ -46,7 +46,7 @@ export default function ChatbotPage() {
       </Head>
       <div className="flex flex-col h-screen">
         {!groupId && !hasStartedChat ? (
-          <div className="flex flex-col justify-start items-center h-full w-full pt-50">
+          <div className="flex flex-col justify-start items-center h-full w-full pt-40">
             <Image
               src={cambotlogo}
               alt="Cambot Logo"
