@@ -28,7 +28,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
             />
           )}
           <div
-            className={`p-3 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`}
+            className={`p-4 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} 
           >
             {msg.text}
           </div>

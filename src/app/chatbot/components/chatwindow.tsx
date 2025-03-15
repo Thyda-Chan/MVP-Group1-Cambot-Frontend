@@ -36,8 +36,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
 
   // Format bot response
   const formatBotResponse = useCallback((responseText: string, fileName: string) => (
-    <div key={fileName} className="mb-8">
-      <div className="whitespace-pre-line">
+    <div key={fileName} className="mb-0">
+      <div className="whitespace-pre-line mb-4">
         {responseText
           .split('\n')
           .filter((line) => line.trim() !== '')
