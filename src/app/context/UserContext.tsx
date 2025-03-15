@@ -63,8 +63,15 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [workEmail, setWorkEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [role, setRole] = useState("");
+
+  // Fetch role from localStorage on initial load
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role")?.toLowerCase();
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +88,10 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("refreshToken", RefreshToken);
       localStorage.setItem("role", role);
 
-      //redirect to chatbot page upon login
+      // Update role in state immediately
+      setRole(role);
+
+      // Redirect to chatbot page upon login
       router.push("/chatbot");
     } catch (error) {
       console.error(
@@ -92,13 +102,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const storedRole = localStorage.getItem("role")?.toLowerCase();
-    if (storedRole) {
-      setRole(storedRole);
-    }
-  }, []);
 
   const fetchUsers = async () => {
     const accessToken = localStorage.getItem("accessToken");
@@ -143,8 +146,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log("object user:", userData);
-
     setLoading(true);
     try {
       const response = await axios.post(
@@ -157,10 +158,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
           },
         }
       );
-
-      // console.log("userData.firstName:", userData.firstName);
-      // console.log("Status:", response.status);
-      // console.log("Response Data:", response.data);
 
       const newUser: User = {
         firstName: response.data.data.first_name,
@@ -193,8 +190,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log("updateUser userData:", userData);
-
     setLoading(true);
     try {
       const response = await axios.put(
@@ -215,8 +210,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
           },
         }
       );
-
-      console.log("updateUser response:", response.data);
 
       setUser((prevUsers) =>
         prevUsers.map((user) =>

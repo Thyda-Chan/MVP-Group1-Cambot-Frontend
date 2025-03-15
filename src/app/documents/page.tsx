@@ -29,8 +29,6 @@ export default function Documents() {
     useState<SimpleDocument[]>(documents);
   const { user, fetchUsers, role } = useUser();
 
-  // console.log("role:", role);
-
   const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
 
   const handleFilter = (
@@ -79,12 +77,12 @@ export default function Documents() {
   }, [open]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1] relative">
       <div className={`${open ? "opacity-20" : ""}`}>
         <Header />
         <div
           {...(open && { onClick: () => setOpen(false) })}
-          className="text-primary bg-gradient-to-b from-white to-[#62C9F1] flex justify-center items-center"
+          className="flex justify-center items-center"
         >
           <div className="min-h-[calc(100vh-64px)] min-w-full p-6 space-y-6">
             <div className="flex items-center gap-4 ml-6">
