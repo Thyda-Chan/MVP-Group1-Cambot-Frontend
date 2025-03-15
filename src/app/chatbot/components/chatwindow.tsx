@@ -5,6 +5,7 @@ import MessageList from '../components/message';
 import ChatInput from '../components/chatinput';
 import FileBox from '../components/filebox';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useChatContext } from '../layout';
 
 interface ChatWindowProps {
   initialMessage: string;
@@ -19,33 +20,39 @@ interface Message {
 const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentGroupId, setCurrentGroupId] = useState<string>('');
+  const [currentGroupId, setCurrentGroupId] = useState('');
   const hasSentInitialMessage = useRef(false);
   const lastFetchedGroupId = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('groupId');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { setHasMessages } = useChatContext();
 
-  const formatBotResponse = useCallback((responseText: string, fileName: string) => {
-    const formattedText = responseText
-      .split('\n')
-      .filter((line) => line.trim() !== '')
-      .map((line, lineIndex) => (
-        <div key={lineIndex} className="flex items-start">
-          <span className="mr-2">•</span>
-          <span>{line.replace(/^\*/g, '').trim()}</span>
-        </div>
-      ));
+  // Update context when messages change
+  useEffect(() => {
+    setHasMessages(messages.length > 0);
+  }, [messages, setHasMessages]);
 
-    return (
-      <div key={fileName} className="mb-8">
-        <div className="whitespace-pre-line">{formattedText}</div>
-        <FileBox fileName={fileName} publishDate="No publish date available" />
+  // Format bot response
+  const formatBotResponse = useCallback((responseText: string, fileName: string) => (
+    <div key={fileName} className="mb-8">
+      <div className="whitespace-pre-line">
+        {responseText
+          .split('\n')
+          .filter((line) => line.trim() !== '')
+          .map((line, lineIndex) => (
+            <div key={lineIndex} className="flex items-start">
+              <span className="mr-2">•</span>
+              <span>{line.replace(/^\*/g, '').trim()}</span>
+            </div>
+          ))}
       </div>
-    );
-  }, []);
+      <FileBox fileName={fileName} publishDate="No publish date available" />
+    </div>
+  ), []);
 
+  // Fetch chat history
   const fetchChatHistory = useCallback(async (groupId: string) => {
     if (lastFetchedGroupId.current === groupId) return;
 
@@ -65,29 +72,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
-      setMessages([]);
-
-      // If there's no actual data, redirect to new chat
       if (!data.data || data.data.length === 0) {
         router.push('/chatbot', { scroll: false });
         setCurrentGroupId('');
         lastFetchedGroupId.current = null;
-        
-        // Clean up localStorage by removing this invalid session
+
         const localSessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
         const updatedSessions = localSessions.filter((session: any) => session.group_id !== groupId);
         localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
         window.dispatchEvent(new Event('chatSessionUpdate'));
-        
         return;
       }
 
       const formattedMessages = data.data.flatMap((chat: any) => [
         { text: chat.question, sender: 'user' },
-        {
-          text: chat.answer.map((item: [string, string]) => formatBotResponse(item[1], item[0])),
-          sender: 'bot',
-        },
+        { text: chat.answer.map((item: [string, string]) => formatBotResponse(item[1], item[0])), sender: 'bot' },
       ]);
 
       setMessages(formattedMessages);
@@ -100,9 +99,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
     }
   }, [formatBotResponse, router]);
 
+  // Get chatbot response
   const getChatbotResponse = useCallback(async (query: string) => {
-    if (!query || query.trim() === '') return;
-    
+    if (!query.trim()) return;
+
     setIsLoading(true);
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -114,30 +114,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          question: query,
-          groupId: currentGroupId || ""
-        }),
+        body: JSON.stringify({ question: query, groupId: currentGroupId || "" }),
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
-
       if (data.group_id && !currentGroupId) {
         router.push(`/chatbot?groupId=${data.group_id}`, { scroll: false });
 
-        // Only save to local storage if we have a valid question
-        if (query && query.trim() !== "") {
+        if (query.trim() !== "") {
           const firstQuestionHistory = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-          const newSession = {
-            group_id: data.group_id,
-            first_question: query
-          };
+          const newSession = { group_id: data.group_id, first_question: query };
 
           if (!firstQuestionHistory.some((session: any) => session.group_id === data.group_id)) {
-            firstQuestionHistory.push(newSession);
-            localStorage.setItem('chatSessions', JSON.stringify(firstQuestionHistory));
+            localStorage.setItem('chatSessions', JSON.stringify([...firstQuestionHistory, newSession]));
             window.dispatchEvent(new Event('chatSessionUpdate'));
           }
         }
@@ -156,12 +147,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
     }
   }, [currentGroupId, formatBotResponse, router]);
 
+  // Handle sending messages
   const handleSend = useCallback((query: string) => {
     if (!query.trim()) return;
     setMessages((prev) => [...prev, { text: query, sender: 'user' }]);
     getChatbotResponse(query);
   }, [getChatbotResponse]);
 
+  // Handle groupId changes
   useEffect(() => {
     if (groupId) {
       if (groupId !== lastFetchedGroupId.current) {
@@ -169,28 +162,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
         fetchChatHistory(groupId);
         hasSentInitialMessage.current = true;
       }
-    } else {
-      if (lastFetchedGroupId.current !== null) {
-        setMessages([]);
-        setCurrentGroupId('');
-        hasSentInitialMessage.current = false;
-        lastFetchedGroupId.current = null;
-
-        if (onNewChat) {
-          onNewChat();
-        }
-      }
+    } else if (lastFetchedGroupId.current !== null) {
+      setMessages([]);
+      setCurrentGroupId('');
+      hasSentInitialMessage.current = false;
+      lastFetchedGroupId.current = null;
+      setHasMessages(false);
+      onNewChat?.();
     }
-  }, [groupId, fetchChatHistory, initialMessage, onNewChat]);
+  }, [groupId, fetchChatHistory, onNewChat, setHasMessages]);
 
+  // Handle initial message
   useEffect(() => {
-    if (initialMessage && initialMessage.trim() !== '' && !hasSentInitialMessage.current && !groupId) {
+    if (initialMessage.trim() && !hasSentInitialMessage.current && !groupId) {
       hasSentInitialMessage.current = true;
       setMessages([{ text: initialMessage, sender: 'user' }]);
       getChatbotResponse(initialMessage);
     }
   }, [initialMessage, groupId, getChatbotResponse]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);

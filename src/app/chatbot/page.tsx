@@ -9,8 +9,8 @@ import ChatInput from './components/chatinput';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function ChatbotPage() {
-  const [hasStartedChat, setHasStartedChat] = useState(false); 
-  const [userMessage, setUserMessage] = useState<string>(''); 
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [userMessage, setUserMessage] = useState<string>('');
   const searchParams = useSearchParams();
   const groupId = searchParams.get('groupId');
   const router = useRouter();
@@ -28,8 +28,8 @@ export default function ChatbotPage() {
   }, [groupId]);
 
   const handleUserMessage = (message: string) => {
-    setUserMessage(message); 
-    setHasStartedChat(true); 
+    setUserMessage(message);
+    setHasStartedChat(true);
   };
 
   // Function to handle new chat request
@@ -46,7 +46,7 @@ export default function ChatbotPage() {
       </Head>
       <div className="flex flex-col h-screen">
         {!groupId && !hasStartedChat ? (
-          <div className="flex flex-col justify-center items-center h-full w-full">
+          <div className="flex flex-col justify-start items-center h-full w-full pt-40">
             <Image
               src={cambotlogo}
               alt="Cambot Logo"
@@ -58,7 +58,7 @@ export default function ChatbotPage() {
             <p className="adlam-font font-bold text-[#0082B3] text-xl sm:text-2xl md:text-3xl mb-8 text-center">
               What can I help you today?
             </p>
-            <div className="w-full max-w-[600px] px-4"> 
+            <div className="w-full max-w-[600px] px-4">
               <ChatInput onUserMessage={handleUserMessage} />
             </div>
           </div>
