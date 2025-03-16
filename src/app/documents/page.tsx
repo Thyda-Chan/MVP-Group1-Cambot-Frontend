@@ -10,6 +10,8 @@ import UpdateDocument from "./components/UpdateDocument";
 import { useUser } from "../context/UserContext";
 import Link from "./components/Link";
 import DeleteButton from "./components/DeleteButton";
+import Image from "next/image";
+import pdf_logo from "@/public/Assets_Images/pdf-logo.png";
 
 export interface SimpleDocument {
   id: string;
@@ -181,9 +183,7 @@ const DocumentBox = ({
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 px-8 bg-gray-200 rounded-md flex justify-center items-center">
-          <span className="text-gray-500">{doc.type}</span>
-        </div>
+        <Image src={pdf_logo} alt="pdf-logo" width={32} height={32} />
         <div className="flex flex-col">
           <p className="font-semibold truncate w-40">{doc.name}</p>
           <button className="text-sm truncate w-40 text-start underline text-darkblue">
