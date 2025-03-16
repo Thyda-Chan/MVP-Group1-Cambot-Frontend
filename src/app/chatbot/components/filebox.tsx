@@ -1,13 +1,14 @@
 import React from 'react';
 
 interface FileBoxProps {
+  fileId: string;
   fileName: string;
   publishDate?: string;
 }
 
-const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate }) => {
-  // Generate the file URL dynamically
-  const fileUrl = `https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/${fileName}`;
+const FileBox: React.FC<FileBoxProps> = ({ fileId, fileName, publishDate }) => {
+  // Generate the file URL dynamically using the fileId
+  const fileUrl = `https://ragfilemanagement.sgp1.cdn.digitaloceanspaces.com/${fileId}`;
 
   return (
     <div
@@ -24,7 +25,7 @@ const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate }) => {
           className="w-10 h-10 mr-3"
         />
         <div className="min-w-0 flex-1">
-          {/* File Name */}
+          {/* File Name (using fileName from backend) */}
           <a
             href={fileUrl}
             target="_blank"
