@@ -30,66 +30,31 @@ export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const { documents, loading, department, documentType } = useUpload();
-  const [filteredDocuments, setFilteredDocuments] =
-    useState<SimpleDocument[]>([]);
+  const [filteredDocuments, setFilteredDocuments] = useState<SimpleDocument[]>(
+    []
+  );
   const { user, fetchUsers, role } = useUser();
-
-  // const handleFilter = (
-  //   query: string,
-  //   department: string,
-  //   sortOrder: string,
-  //   docType: string
-  // ) => {
-  //   let filteredDocs = documents.map((doc) => ({
-  //     ...doc,
-  //     department: doc.department || "",
-  //     document_type_id: doc.document_type_id || "",
-  //   }));
-
-  //   if (query) {
-  //     filteredDocs = filteredDocs.filter(
-  //       (doc) =>
-  //         doc.name && doc.name.toLowerCase().includes(query.toLowerCase())
-  //     );
-  //   }
-
-  //   if (department !== "All departments") {
-  //     filteredDocs = filteredDocs.filter(
-  //       (doc) => doc.department === department
-  //     );
-  //   }
-
-  //   if (docType !== "All Types") {
-  //     filteredDocs = filteredDocs.filter((doc) => doc.type === docType);
-  //   }
-
-  //   filteredDocs.sort((a, b) => {
-  //     const dateA = new Date(a.date).getTime();
-  //     const dateB = new Date(b.date).getTime();
-  //     return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
-  //   });
-
-  //   setFilteredDocuments(filteredDocs);
-  // };
 
   // In the Documents component, update handleFilter:
   const handleFilter = useCallback(
     (query: string, department: string, sortOrder: string, docType: string) => {
       // Don't set state if nothing has changed
-      const filteredDocs = documents.map((doc) => ({
-        ...doc,
-        department: doc.department || "",
-        document_type_id: doc.document_type_id || "",
-      })).filter((doc) => {
-        const matchesQuery = !query || 
-          (doc.name && doc.name.toLowerCase().includes(query.toLowerCase()));
-        const matchesDepartment = department === "All departments" || 
-          doc.department === department;
-        const matchesType = docType === "All Types" || 
-          doc.type === docType;
-        
-        return matchesQuery && matchesDepartment && matchesType;
-      });
+      const filteredDocs = documents
+        .map((doc) => ({
+          ...doc,
+          department: doc.department || "",
+          document_type_id: doc.document_type_id || "",
+        }))
+        .filter((doc) => {
+          const matchesQuery =
+            !query ||
+            (doc.name && doc.name.toLowerCase().includes(query.toLowerCase()));
+          const matchesDepartment =
+            department === "All departments" || doc.department === department;
+          const matchesType = docType === "All Types" || doc.type === docType;
+
+          return matchesQuery && matchesDepartment && matchesType;
+        });
 
       // Sort the filtered documents
       filteredDocs.sort((a, b) => {
@@ -108,8 +73,7 @@ export default function Documents() {
     handleFilter("", "All departments", "Newest to Oldest", "All Types");
   }, [documents, handleFilter]);
 
-
-// In the SearchDoc component, update the useEffect:
+  // In the SearchDoc component, update the useEffect:
 
   useEffect(() => {
     if (open) {
@@ -143,10 +107,11 @@ export default function Documents() {
             <div className="flex gap-4 items-center ml-6">
               <SearchDoc
                 placeholder="Search documents"
-                documents={documents.map(doc => ({
+                documents={documents.map((doc) => ({
                   ...doc,
                   department_id: (doc as SimpleDocument).department_id || "",
-                  document_type_id: (doc as SimpleDocument).document_type_id || ""
+                  document_type_id:
+                    (doc as SimpleDocument).document_type_id || "",
                 }))}
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
@@ -173,9 +138,9 @@ export default function Documents() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredDocuments.map((doc) => (
+                  {filteredDocuments.map((doc, index) => (
                     <DocumentBoxUser
-                      key={doc.id}
+                      key={doc.id || `${doc.name}-${index}`}
                       doc={doc}
                       setFilteredDocuments={setFilteredDocuments}
                     />
@@ -188,9 +153,9 @@ export default function Documents() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredDocuments.map((doc) => (
+                {filteredDocuments.map((doc, index) => (
                   <DocumentBox
-                    key={doc.id}
+                    key={doc.id || `${doc.name}-${index}`}
                     doc={doc}
                     setFilteredDocuments={setFilteredDocuments}
                   />
@@ -223,18 +188,18 @@ const DocumentBox = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Update handleSave in DocumentBox component
-    const handleSave = (updatedDoc: SimpleDocument) => {
-      updateDocument(doc.id, {    // Change from doc.name to doc.id
-        title: updatedDoc.name,
-        publiced_date: updatedDoc.date,
-        document_type_id: updatedDoc.type,  // This should be the document type name
-        department_id: updatedDoc.department // This should be the department name
-      });
-      setFilteredDocuments((prevDocs) =>
-        prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
-      );
-    };
-
+  const handleSave = (updatedDoc: SimpleDocument) => {
+    updateDocument(doc.id, {
+      // Change from doc.name to doc.id
+      title: updatedDoc.name,
+      publiced_date: updatedDoc.date,
+      document_type_id: updatedDoc.type, // This should be the document type name
+      department_id: updatedDoc.department, // This should be the department name
+    });
+    setFilteredDocuments((prevDocs) =>
+      prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
+    );
+  };
 
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
@@ -319,14 +284,14 @@ const SearchDoc = ({
   const [sortOrder, setSortOrder] = useState("Newest to Oldest");
   const [selectedType, setSelectedType] = useState("All Types");
 
-// Debounce the filter calls
-useEffect(() => {
-  const timeoutId = setTimeout(() => {
-    handleFilter(searchQuery, selectedDepartment, sortOrder, selectedType);
-  }, 300);
+  // Debounce the filter calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handleFilter(searchQuery, selectedDepartment, sortOrder, selectedType);
+    }, 300);
 
-  return () => clearTimeout(timeoutId);
-}, [searchQuery, selectedDepartment, sortOrder, selectedType, handleFilter]);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, selectedDepartment, sortOrder, selectedType, handleFilter]);
 
   return (
     <div className="flex gap-4">

@@ -14,7 +14,15 @@ interface UploadContextType {
   loading: boolean;
   postDocuments: (data: SubmissionData) => Promise<void>;
   deleteDocument: (param: string) => Promise<void>;
-  updateDocument: (document_id: string, updateData: { title?: string; publiced_date?: string; document_type_id?: string; department_id?: string }) => Promise<void>;
+  updateDocument: (
+    document_id: string,
+    updateData: {
+      title?: string;
+      publiced_date?: string;
+      document_type_id?: string;
+      department_id?: string;
+    }
+  ) => Promise<void>;
   data: SubmissionData | null;
   setData: (data: SubmissionData) => void;
   department: Department[];
@@ -89,6 +97,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching documents:", error);
     } finally {
       setLoading(false);
+      console.log("x fetchdoc:");
     }
   };
 
@@ -163,6 +172,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       };
 
       setDocuments((prevDocuments) => [...prevDocuments, newDocument]);
+      console.log("x");
       alert(
         "File uploaded successfully: " +
           fileData.file_url +
@@ -185,9 +195,10 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         { method: "DELETE" }
       );
 
-      setDocuments((prevDocuments) =>
-        prevDocuments.filter((doc) => doc.name !== file_name)
-      );
+      // setDocuments((prevDocuments) =>
+      //   prevDocuments.filter((doc) => doc.name !== file_name)
+      // );
+      await fetchDocuments();
       alert("File deleted successfully");
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -196,61 +207,65 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateDocument = async (document_id: string, updateData: {
-    title?: string;
-    publiced_date?: string;
-    document_type_id?: string;
-    department_id?: string;
-}) => {
-    try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) {
-            throw new Error("User is not authenticated");
-        }
-
-        // Find the department and document type by name
-        const selectedDepartment = department.find(
-            (dept) => dept.name === updateData.department_id
-        );
-        const selectedDocumentType = documentType.find(
-            (docType) => docType.name === updateData.document_type_id
-        );
-
-        // Prepare update payload with actual IDs
-        const updatePayload = {
-            document_id,
-            title: updateData.title,
-            publiced_date: updateData.publiced_date,
-            document_type_id: selectedDocumentType?.id || updateData.document_type_id,
-            department_id: selectedDepartment?.id || updateData.department_id
-        };
-
-        // Debug logs for request data
-        console.log('Debug - Update Request:', {
-            endpoint: `${LOCALHOST}/file/update`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            requestBody: updatePayload
-        });
-
-        const response = await fetch(`${LOCALHOST}/file/update`, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(updatePayload)
-        });
-
-        // ... rest of the function remains the same ...
-    } catch (error) {
-        console.error("Error updating document:", error);
-        throw error;
+  const updateDocument = async (
+    document_id: string,
+    updateData: {
+      title?: string;
+      publiced_date?: string;
+      document_type_id?: string;
+      department_id?: string;
     }
-};
+  ) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        throw new Error("User is not authenticated");
+      }
+
+      // Find the department and document type by name
+      const selectedDepartment = department.find(
+        (dept) => dept.name === updateData.department_id
+      );
+      const selectedDocumentType = documentType.find(
+        (docType) => docType.name === updateData.document_type_id
+      );
+
+      // Prepare update payload with actual IDs
+      const updatePayload = {
+        document_id,
+        title: updateData.title,
+        publiced_date: updateData.publiced_date,
+        document_type_id:
+          selectedDocumentType?.id || updateData.document_type_id,
+        department_id: selectedDepartment?.id || updateData.department_id,
+      };
+
+      // Debug logs for request data
+      console.log("Debug - Update Request:", {
+        endpoint: `${LOCALHOST}/file/update`,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        requestBody: updatePayload,
+      });
+
+      const response = await fetch(`${LOCALHOST}/file/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(updatePayload),
+      });
+
+      // ... rest of the function remains the same ...
+    } catch (error) {
+      console.error("Error updating document:", error);
+      throw error;
+    }
+  };
 
   const fetchDepartments = async () => {
     // setLoading(true);
@@ -310,10 +325,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchDocuments();
-    if (data?.file) {
-      postDocuments(data);
-    }
-  }, [data]);
+  }, []);
 
   useEffect(() => {
     fetchDepartments();
@@ -323,16 +335,16 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   return (
     <UploadContext.Provider
       value={{
-      documents,
-      fetchDocuments,
-      loading,
-      postDocuments,
-      deleteDocument,
-      updateDocument,
-      data,
-      setData,
-      department,
-      documentType,
+        documents,
+        fetchDocuments,
+        loading,
+        postDocuments,
+        deleteDocument,
+        updateDocument,
+        data,
+        setData,
+        department,
+        documentType,
       }}
     >
       {children}

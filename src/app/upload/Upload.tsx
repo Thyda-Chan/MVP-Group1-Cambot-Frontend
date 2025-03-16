@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { CloudUpload } from "lucide-react";
 import Input from "./components/Input";
 import { useUpload } from "../context/UploadContext";
-import { DepartmentContext } from "../context/DepartmentContext";
-import { DocumentTypeContext } from "../context/DocumentTypeContext";
 
 interface UploadProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,8 +12,14 @@ interface UploadProps {
 
 export default function Upload({ setOpen }: UploadProps) {
   const [file, setFile] = useState<File | null>(null);
-  const { setData, postDocuments, loading, documentType, department } =
-    useUpload();
+  const {
+    setData,
+    postDocuments,
+    loading,
+    documentType,
+    department,
+    fetchDocuments,
+  } = useUpload();
 
   const {
     register,
@@ -45,6 +49,8 @@ export default function Upload({ setOpen }: UploadProps) {
       };
       setData(formData);
       setOpen(false);
+      await postDocuments(formData);
+      await fetchDocuments();
     }
   };
 
