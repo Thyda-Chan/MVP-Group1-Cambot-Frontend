@@ -21,7 +21,10 @@ interface UpdateUser {
 
 export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
   const [updatedUser, setUpdatedUser] = useState<User>(user);
-  const { updateUserRole } = useUser();
+  const [error, setError] = useState("");
+  const [updatedUserPassword, setUpdatedUserPassword] = useState({
+    password: "",
+  });
 
   useEffect(() => {
     setUpdatedUser(user);
@@ -40,8 +43,24 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRole = e.target.value;
     setUpdatedUser((prev) => ({ ...prev, role: newRole }));
+  };
 
-    updateUserRole(updatedUser.userId, newRole);
+  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUpdatedUser((prev) => ({ ...prev, [name]: value }));
+
+    // password validation
+    if (name === "password") {
+      const capitalLetterRegex = /[A-Z]/;
+      const numberRegex = /[0-9]/;
+      if (!capitalLetterRegex.test(value)) {
+        setError("Password must contain at least one capital letter.");
+      } else if (!numberRegex.test(value)) {
+        setError("Password must contain at least one number.");
+      } else {
+        setError("");
+      }
+    }
   };
 
   const inputFields = [
@@ -61,14 +80,9 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
       name: "username",
     },
     {
-      label: "Password",
-      value: updatedUser.password,
-      name: "password",
-    },
-    {
       label: "Employee Id",
       value: updatedUser.employeeId,
-      name: "employee_id",
+      name: "employeeId",
     },
   ];
 
@@ -87,6 +101,18 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
               onChange={handleChange}
             />
           ))}
+
+          <div>
+            <label htmlFor="password">Password</label>
+            <input
+              name="password"
+              type="password"
+              value={updatedUser.password}
+              onChange={handleChangePassword}
+              className="w-full p-2 border rounded-md"
+            />
+            {error && <p className="text-red-500">{error}</p>}
+          </div>
 
           <div className="mt-4">
             <label htmlFor="role" className="text-md text-[#015D7F]">

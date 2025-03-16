@@ -19,9 +19,6 @@ export default function Users() {
 
   const USERS_PER_PAGE = 5;
 
-  // console.log("User data:", user);
-  // console.log("role::", user[0].role);
-
   const filteredUsers = Array.isArray(users)
     ? users.filter(
         (user) =>

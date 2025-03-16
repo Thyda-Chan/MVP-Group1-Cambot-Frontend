@@ -157,12 +157,12 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       });
 
       const newUser: User = {
-        firstName: response.data.data.first_name,
-        lastName: response.data.data.last_name,
+        userId: "",
+        firstName: response.data.data.firstName,
+        lastName: response.data.data.lastName,
         username: response.data.data.username,
         password: response.data.data.password,
-        employeeId: response.data.data.employee_id,
-        userId: "",
+        employeeId: response.data.data.employeeId,
         role: response.data.data.role,
         is_active: response.data.data.is_active,
       };
@@ -170,9 +170,12 @@ export default function UserProvider({ children }: { children: ReactNode }) {
       setUser((prevUsers) => [...prevUsers, newUser]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("Axios Error:", error.response?.data || error.message);
+        const errorMessage = error.response?.data?.message;
+        console.error("Axios Error:", errorMessage);
+        alert("Invalid: " + errorMessage);
       } else {
         console.error("Unexpected Error:", error);
+        alert("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
@@ -214,7 +217,14 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         )
       );
     } catch (error) {
-      console.error("Error updating user:", error);
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message;
+        console.error("Axios Error:", errorMessage);
+        alert("Invalid: " + errorMessage);
+      } else {
+        console.error("Unexpected Error:", error);
+        alert("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -260,7 +270,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const response = await axios.put(
-        `${LOCALHOST}/auth/change-role/`,
+        `${LOCALHOST}/auth/change-role`,
         { userId, role: newRole },
         {
           headers: {
