@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import MessageList from '../components/message';
 import ChatInput from '../components/chatinput';
@@ -35,8 +33,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
   }, [messages, setHasMessages]);
 
   // Format bot response
-  const formatBotResponse = useCallback((responseText: string, fileName: string) => (
-    <div key={fileName} className="mb-0">
+  const formatBotResponse = useCallback((responseText: string, fileName?: string, publishDate?: string) => (
+    <div key={fileName || responseText} className="mb-0">
       <div className="whitespace-pre-line mb-4">
         {responseText
           .split('\n')
@@ -48,7 +46,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
             </div>
           ))}
       </div>
-      <FileBox fileName={fileName} publishDate="No publish date available" />
+      {/* Conditionally render FileBox only if fileName and publishDate are provided */}
+      {fileName && publishDate && (
+        <FileBox fileName={fileName} publishDate={publishDate} />
+      )}
     </div>
   ), []);
 
@@ -86,7 +87,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
 
       const formattedMessages = data.data.flatMap((chat: any) => [
         { text: chat.question, sender: 'user' },
-        { text: chat.answer.map((item: [string, string]) => formatBotResponse(item[1], item[0])), sender: 'bot' },
+        { text: chat.answer.map((item: [string, string, string]) => formatBotResponse(item[1], item[0], item[2])), sender: 'bot' },
       ]);
 
       setMessages(formattedMessages);
@@ -137,7 +138,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       setCurrentGroupId(data.group_id);
       lastFetchedGroupId.current = data.group_id;
 
-      const botResponse = data.response.map((item: [string, string]) => formatBotResponse(item[1], item[0]));
+      const botResponse = data.response.map((item: [string, string, string]) => formatBotResponse(item[1], item[0], item[2]));
       setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
     } catch (error) {
       console.error('Error fetching chatbot response:', error);
@@ -187,15 +188,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <div className="flex-1 pb-20">
+    <div className="flex flex-col h-screen">
+      <div className="flex-1 overflow-y-auto pb-20">
         <div className="flex flex-col space-y-4 p-4">
           <MessageList messages={messages} isLoading={isLoading} />
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="w-full bg-white border-t border-gray-200 p-2 absolute bottom-0 left-0">
-        <div className="max-w-xl mx-auto">
+      <div className="fixed bottom-0 left-0 w-full bg-transparent border-t border-gray-200 p-2">
+        <div className="w-full max-w-xl mx-auto">
           <ChatInput onUserMessage={handleSend} />
         </div>
       </div>
