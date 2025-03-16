@@ -90,8 +90,6 @@ export default function Users() {
     }
   };
 
-  // console.log(user);
-
   const handleDeleteUser = (userId: string) => {
     if (
       window.confirm(`Are you sure you want to delete this user? ${userId}`)

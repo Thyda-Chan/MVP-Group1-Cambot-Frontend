@@ -66,6 +66,8 @@ interface DocumentType {
   updated_at: string;
 }
 
+const LOCALHOST = "http://127.0.0.1:8000";
+
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
 
 export const UploadProvider = ({ children }: { children: ReactNode }) => {
@@ -75,14 +77,10 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const [department, setDepartment] = useState<Department[]>([]);
   const [documentType, setDocumentType] = useState<DocumentType[]>([]);
 
-  // console.log("Data::" + JSON.stringify(data));
-  // const author = data?.adminName;
-  // console.log("author::" + author);
-
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/file/list");
+      const response = await fetch(`${LOCALHOST}/database/fetch_all?`);
       const data = await response.json();
 
       const documents: Document[] = data.map((item: any, index: number) => ({
@@ -111,12 +109,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/database/fetch_all/",
-        {
-          method: "GET",
-        }
-      );
+      const response = await fetch(`${LOCALHOST}/database/fetch_all/`, {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -178,7 +173,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         published_date: data.publishedDate,
       });
 
-      const response = await fetch("http://127.0.0.1:8000/file/upload", {
+      const response = await fetch(`${LOCALHOST}/file/upload`, {
         method: "POST",
         body: formData,
         headers: {
@@ -222,7 +217,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const deleteDocument = async (file_name: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/file/delete?file_name=${file_name}`,
+        `${LOCALHOST}/file/delete?file_name=${file_name}`,
         { method: "DELETE" }
       );
 
@@ -240,7 +235,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const updateDocument = async (file_name: string, new_file_name: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/file/update?file_name=${file_name}&new_file_name=${new_file_name}`,
+        `${LOCALHOST}/file/update?file_name=${file_name}&new_file_name=${new_file_name}`,
         { method: "PUT" }
       );
 
@@ -255,7 +250,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/department/list/", {
+      const response = await fetch(`${LOCALHOST}/department/list/`, {
         method: "GET",
       });
       if (!response.ok) {
@@ -283,7 +278,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/docs/list/", {
+      const response = await fetch(`${LOCALHOST}/docs/list/`, {
         method: "GET",
       });
       if (!response.ok) {

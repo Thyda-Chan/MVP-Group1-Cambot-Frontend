@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
-import { DepartmentContext } from "../context/DepartmentContext";
 import { useUser } from "../context/UserContext";
 
 export interface SimpleDocument {

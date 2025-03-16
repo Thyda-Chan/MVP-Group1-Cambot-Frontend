@@ -9,6 +9,7 @@ import React, {
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
+const LOCALHOST = "http://127.0.0.1:8000";
 interface UserContextType {
   loading: boolean;
   user: User[];
@@ -78,7 +79,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/login", {
+      const response = await axios.post(`${LOCALHOST}/user/auth/login`, {
         username: workEmail,
         password: password,
       });
@@ -113,7 +114,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
     setLoading(true);
     try {
-      const response = await axios.get("http://127.0.0.1:8000/user/", {
+      const response = await axios.get(`${LOCALHOST}/user/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -148,16 +149,12 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/user/",
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${LOCALHOST}/user/`, userData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const newUser: User = {
         firstName: response.data.data.first_name,
@@ -193,7 +190,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const response = await axios.put(
-        `http://127.0.0.1:8000/user/`,
+        `${LOCALHOST}/user/`,
         {
           userId: userData.userId,
           firstName: userData.firstName,
@@ -233,7 +230,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
     setLoading(true);
     try {
-      await axios.delete(`http://127.0.0.1:8000/user/`, {
+      await axios.delete(`${LOCALHOST}/user/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
@@ -263,7 +260,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const response = await axios.put(
-        "http://127.0.0.1:8000/auth/change-role/",
+        `${LOCALHOST}/auth/change-role/`,
         { userId, role: newRole },
         {
           headers: {
