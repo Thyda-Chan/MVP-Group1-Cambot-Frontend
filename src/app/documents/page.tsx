@@ -13,6 +13,9 @@ import { useUser } from "../context/UserContext";
 export interface SimpleDocument {
   id: string;
   name: string;
+  title: string;
+  created_by: string;
+  document_type: string;
   size: string;
   type: string;
   department: string;
@@ -189,7 +192,7 @@ const DocumentBox = ({
           <span className="text-gray-500">{doc.type}</span>
         </div>
         <div className="flex flex-col">
-          <p className="font-semibold truncate w-40">{doc.name}</p>
+          <p className="font-semibold truncate w-40">{doc.title}</p>
           <button className="text-sm truncate w-40 text-start">
             <a
               href={doc.fileURL}
@@ -204,7 +207,7 @@ const DocumentBox = ({
       </div>
       <div className="flex-1 flex gap-x-4 justify-center">
         <div className="border rounded-xl px-2 text-sm font-semibold bg-skyblue">
-          {doc.type}
+          {doc.document_type}
         </div>
         <p className="text-sm text-darkblue">{doc.size}</p>
       </div>
@@ -214,7 +217,7 @@ const DocumentBox = ({
           A
         </div>
         <div>
-          <p className="text-gray-600">{doc.author}</p>
+          <p className="text-gray-600">{doc.created_by}</p>
           <p className="text-gray-500">{doc.date}</p>
         </div>
       </div>

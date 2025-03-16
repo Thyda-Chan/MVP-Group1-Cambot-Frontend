@@ -10,7 +10,8 @@ import {
 
 interface UploadContextType {
   documents: Document[];
-  fetchDocuments: () => Promise<void>;
+  // fetchDocuments: () => Promise<void>;
+  fetchDocuments1: () => Promise<void>;  
   loading: boolean;
   postDocuments: (data: SubmissionData) => Promise<void>;
   deleteDocument: (param: string) => Promise<void>;
@@ -38,11 +39,18 @@ interface SubmissionData {
   documentType: string;
   department: string;
   publishedDate: string;
+  createdby:string;
   file?: File;
 }
 
 interface Document {
   id: string;
+  created_by_id: string;
+  document_type_id: string;
+  document_type: string;
+  department_id: string;
+  created_by: string;
+  title: string;
   name: string;
   size: string;
   type: string;
@@ -79,33 +87,33 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   // const author = data?.adminName;
   // console.log("author::" + author);
 
-  const fetchDocuments = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("http://127.0.0.1:8000/file/list");
-      const data = await response.json();
+  // const fetchDocuments = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch("http://127.0.0.1:8000/file/list");
+  //     const data = await response.json();
 
-      const documents: Document[] = data.map((item: any, index: number) => ({
-        id: item.id || index,
-        name: item.file_name,
-        size: formatSize(item.size),
-        type: getFileType(item.file_name),
-        department: "Unknown",
-        author: data?.adminName || "Admin",
-        date: new Date(item.last_modified).toLocaleDateString(),
-        fileURL: item.file_url.replace(
-          "https://ragfilemanagement.https://",
-          "https://ragfilemanagement."
-        ),
-      }));
+  //     const documents: Document[] = data.map((item: any, index: number) => ({
+  //       id: item.id || index,
+  //       name: item.file_name,
+  //       size: formatSize(item.size),
+  //       type: getFileType(item.file_name),
+  //       department: "Unknown",
+  //       author: data?.adminName || "Admin",
+  //       date: new Date(item.last_modified).toLocaleDateString(),
+  //       fileURL: item.file_url.replace(
+  //         "https://ragfilemanagement.https://",
+  //         "https://ragfilemanagement."
+  //       ),
+  //     }));
 
-      setDocuments(documents);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setDocuments(documents);
+  //   } catch (error) {
+  //     console.error("Error fetching documents:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const fetchDocuments1 = async () => {
     setLoading(true);
@@ -128,7 +136,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         created_by_id: item.created_by_id,
         document_type_id: item.document_type_id,
         department_id: item.department_id,
-        name: item.title,
+        title: item.title,
+        created_by: item.created_by,
+        document_type: item.document_type,
         date: item.publiced_date,
         created_at: item.created_at,
         updated_at: item.updated_at,
@@ -169,6 +179,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       formData.append("document_type_id", data.documentType);
       formData.append("department_id", data.department);
       formData.append("publiced_date", data.publishedDate);
+      formData.append("created_by", data.createdby);
 
       console.log("Sending form data:", {
         file: data.file?.name,
@@ -195,6 +206,12 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       const fileData = await response.json();
       const newDocument: Document = {
         id: fileData.id,
+        created_by_id: fileData.created_id,
+        created_by: fileData.created_by,
+        document_type_id: fileData.document_type_id,
+        title: fileData.title,
+        document_type: fileData.document_type,
+        department_id: fileData.department_id,
         name: fileData.file_name,
         size: formatSize(fileData.size),
         type: getFileType(fileData.file_name),
@@ -307,8 +324,15 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchDocuments();
+  //   if (data?.file) {
+  //     postDocuments(data);
+  //   }
+  // }, [data]);
+
   useEffect(() => {
-    fetchDocuments();
+    fetchDocuments1();  // Changed from fetchDocuments to fetchDocuments1
     if (data?.file) {
       postDocuments(data);
     }
@@ -323,7 +347,8 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     <UploadContext.Provider
       value={{
         documents,
-        fetchDocuments,
+        // fetchDocuments,
+        fetchDocuments1, 
         loading,
         postDocuments,
         deleteDocument,
