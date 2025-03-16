@@ -189,7 +189,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 pb-20">
         <div className="flex flex-col space-y-4 p-4">
           <MessageList messages={messages} isLoading={isLoading} />
           <div ref={messagesEndRef} />
