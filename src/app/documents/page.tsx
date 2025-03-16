@@ -3,7 +3,7 @@
 import Header from "@/app/chatbot/components/header";
 import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
 import Button from "./components/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
@@ -19,6 +19,8 @@ export interface SimpleDocument {
   department: string;
   author: string;
   date: string;
+  department_id: string;
+  document_type_id: string;
   fileURL?: string;
 }
 
@@ -27,42 +29,85 @@ export default function Documents() {
   const [open, setOpen] = useState(false);
   const { documents, loading, department, documentType } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
-    useState<SimpleDocument[]>(documents);
+    useState<SimpleDocument[]>([]);
   const { user, fetchUsers, role } = useUser();
 
-  const handleFilter = (
-    query: string,
-    department: string,
-    sortOrder: string,
-    docType: string
-  ) => {
-    let filteredDocs = [...documents];
+  // const handleFilter = (
+  //   query: string,
+  //   department: string,
+  //   sortOrder: string,
+  //   docType: string
+  // ) => {
+  //   let filteredDocs = documents.map((doc) => ({
+  //     ...doc,
+  //     department: doc.department || "",
+  //     document_type_id: doc.document_type_id || "",
+  //   }));
 
-    if (query) {
-      filteredDocs = filteredDocs.filter(
-        (doc) =>
-          doc.name && doc.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+  //   if (query) {
+  //     filteredDocs = filteredDocs.filter(
+  //       (doc) =>
+  //         doc.name && doc.name.toLowerCase().includes(query.toLowerCase())
+  //     );
+  //   }
 
-    if (department !== "All departments") {
-      filteredDocs = filteredDocs.filter(
-        (doc) => doc.department === department
-      );
-    }
+  //   if (department !== "All departments") {
+  //     filteredDocs = filteredDocs.filter(
+  //       (doc) => doc.department === department
+  //     );
+  //   }
 
-    if (docType !== "All Types") {
-      filteredDocs = filteredDocs.filter((doc) => doc.type === docType);
-    }
+  //   if (docType !== "All Types") {
+  //     filteredDocs = filteredDocs.filter((doc) => doc.type === docType);
+  //   }
 
-    filteredDocs.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
-    });
+  //   filteredDocs.sort((a, b) => {
+  //     const dateA = new Date(a.date).getTime();
+  //     const dateB = new Date(b.date).getTime();
+  //     return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
+  //   });
 
-    setFilteredDocuments(filteredDocs);
-  };
+  //   setFilteredDocuments(filteredDocs);
+  // };
+
+  // In the Documents component, update handleFilter:
+  const handleFilter = useCallback(
+    (query: string, department: string, sortOrder: string, docType: string) => {
+      // Don't set state if nothing has changed
+      const filteredDocs = documents.map((doc) => ({
+        ...doc,
+        department: doc.department || "",
+        document_type_id: doc.document_type_id || "",
+      })).filter((doc) => {
+        const matchesQuery = !query || 
+          (doc.name && doc.name.toLowerCase().includes(query.toLowerCase()));
+        const matchesDepartment = department === "All departments" || 
+          doc.department === department;
+        const matchesType = docType === "All Types" || 
+          doc.type === docType;
+        
+        return matchesQuery && matchesDepartment && matchesType;
+      });
+
+      // Sort the filtered documents
+      filteredDocs.sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return sortOrder === "Newest to Oldest" ? dateB - dateA : dateA - dateB;
+      });
+
+      setFilteredDocuments(filteredDocs);
+    },
+    [documents] // Only depend on documents array
+  );
+
+  // Initialize filtered documents when documents change
+  useEffect(() => {
+    handleFilter("", "All departments", "Newest to Oldest", "All Types");
+  }, [documents, handleFilter]);
+
+
+// In the SearchDoc component, update the useEffect:
 
   useEffect(() => {
     if (open) {
@@ -96,7 +141,11 @@ export default function Documents() {
             <div className="flex gap-4 items-center ml-6">
               <SearchDoc
                 placeholder="Search documents"
-                documents={documents}
+                documents={documents.map(doc => ({
+                  ...doc,
+                  department_id: (doc as SimpleDocument).department_id || "",
+                  document_type_id: (doc as SimpleDocument).document_type_id || ""
+                }))}
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
                 departments={department.map((dept) => dept.name)}
@@ -171,12 +220,19 @@ const DocumentBox = ({
   const { deleteDocument, updateDocument } = useUpload();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSave = (updatedDoc: SimpleDocument) => {
-    updateDocument(doc.name, updatedDoc.name);
-    setFilteredDocuments((prevDocs) =>
-      prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
-    );
-  };
+  // Update handleSave in DocumentBox component
+    const handleSave = (updatedDoc: SimpleDocument) => {
+      updateDocument(doc.id, {    // Change from doc.name to doc.id
+        title: updatedDoc.name,
+        publiced_date: updatedDoc.date,
+        document_type_id: updatedDoc.type,  // This should be the document type name
+        department_id: updatedDoc.department // This should be the department name
+      });
+      setFilteredDocuments((prevDocs) =>
+        prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
+      );
+    };
+
 
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
@@ -263,9 +319,14 @@ const SearchDoc = ({
   const [sortOrder, setSortOrder] = useState("Newest to Oldest");
   const [selectedType, setSelectedType] = useState("All Types");
 
-  useEffect(() => {
+// Debounce the filter calls
+useEffect(() => {
+  const timeoutId = setTimeout(() => {
     handleFilter(searchQuery, selectedDepartment, sortOrder, selectedType);
-  }, [searchQuery, selectedDepartment, sortOrder, selectedType, documents]);
+  }, 300);
+
+  return () => clearTimeout(timeoutId);
+}, [searchQuery, selectedDepartment, sortOrder, selectedType, handleFilter]);
 
   return (
     <div className="flex gap-4">
@@ -327,7 +388,12 @@ const DocumentBoxUser = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (updatedDoc: SimpleDocument) => {
-    updateDocument(doc.name, updatedDoc.name);
+    updateDocument(doc.name, {
+      title: updatedDoc.name,
+      publiced_date: updatedDoc.date,
+      document_type_id: updatedDoc.document_type_id,
+      department_id: updatedDoc.department,
+    });
     setFilteredDocuments((prevDocs) =>
       prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
     );
