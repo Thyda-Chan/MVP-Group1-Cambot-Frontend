@@ -25,17 +25,16 @@ export interface SimpleDocument {
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
-  const { documents, loading, department } = useUpload();
+  const { documents, loading, department, documentType } = useUpload();
   const [filteredDocuments, setFilteredDocuments] =
     useState<SimpleDocument[]>(documents);
   const { user, fetchUsers, role } = useUser();
 
-  const buttons = ["All documents", "Memo", "SOP", "Policies", "Others"];
-
   const handleFilter = (
     query: string,
     department: string,
-    sortOrder: string
+    sortOrder: string,
+    docType: string
   ) => {
     let filteredDocs = [...documents];
 
@@ -50,6 +49,10 @@ export default function Documents() {
       filteredDocs = filteredDocs.filter(
         (doc) => doc.department === department
       );
+    }
+
+    if (docType !== "All Types") {
+      filteredDocs = filteredDocs.filter((doc) => doc.type === docType);
     }
 
     filteredDocs.sort((a, b) => {
@@ -88,16 +91,6 @@ export default function Documents() {
           <div className="min-h-[calc(100vh-64px)] min-w-full p-6 space-y-6">
             <div className="flex items-center gap-4 ml-6">
               <h1 className="text-2xl font-semibold">Documents</h1>
-              <div className="flex space-x-2">
-                {buttons.map((title, index) => (
-                  <Button
-                    key={index}
-                    title={title}
-                    isActive={activeIndex === index}
-                    onClick={() => setActiveIndex(index)}
-                  />
-                ))}
-              </div>
             </div>
 
             <div className="flex gap-4 items-center ml-6">
@@ -107,7 +100,9 @@ export default function Documents() {
                 setFilteredDocuments={setFilteredDocuments}
                 handleFilter={handleFilter}
                 departments={department.map((dept) => dept.name)}
+                documentTypes={documentType.map((type) => type.name)}
               />
+
               <div className="flex items-center">
                 <button
                   onClick={() => setOpen((prev) => !prev)}
@@ -205,7 +200,7 @@ const DocumentBox = ({
 
       <div className="flex-1 flex items-center gap-x-4">
         <div className="w-10 h-10 border bg-gray-200 rounded-full flex justify-center items-center">
-          A
+          {doc.author[0]}
         </div>
         <div>
           <p className="text-gray-600">{doc.author}</p>
@@ -248,29 +243,36 @@ const SearchDoc = ({
   setFilteredDocuments,
   handleFilter,
   departments,
+  documentTypes,
 }: {
   placeholder: string;
   documents: SimpleDocument[];
   setFilteredDocuments: (docs: SimpleDocument[]) => void;
-  handleFilter: (query: string, department: string, sortOrder: string) => void;
+  handleFilter: (
+    query: string,
+    department: string,
+    sortOrder: string,
+    docType: string
+  ) => void;
   departments: string[];
+  documentTypes: string[];
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] =
     useState("All departments");
   const [sortOrder, setSortOrder] = useState("Newest to Oldest");
-  const { department } = useUpload();
+  const [selectedType, setSelectedType] = useState("All Types");
 
   useEffect(() => {
-    handleFilter(searchQuery, selectedDepartment, sortOrder);
-  }, [searchQuery, selectedDepartment, sortOrder, documents]);
+    handleFilter(searchQuery, selectedDepartment, sortOrder, selectedType);
+  }, [searchQuery, selectedDepartment, sortOrder, selectedType, documents]);
 
   return (
     <div className="flex gap-4">
       <div className="flex justify-between py-2 px-5 border rounded-3xl w-1/2 gap-2 bg-white focus:outline">
         <input
           type="search"
-          placeholder="Search Documents"
+          placeholder={placeholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="focus:outline-none w-full"
@@ -283,13 +285,22 @@ const SearchDoc = ({
       <select
         className="p-2 border rounded-xl"
         value={selectedDepartment}
-        onChange={(e) => {
-          setSelectedDepartment(e.target.value);
-        }}
+        onChange={(e) => setSelectedDepartment(e.target.value)}
       >
         <option>All departments</option>
-        {department.map((dept, index) => (
-          <option key={index}>{dept.name}</option>
+        {departments.map((dept, index) => (
+          <option key={index}>{dept}</option>
+        ))}
+      </select>
+
+      <select
+        className="p-2 border rounded-xl"
+        value={selectedType}
+        onChange={(e) => setSelectedType(e.target.value)}
+      >
+        <option>All Types</option>
+        {documentTypes.map((type, index) => (
+          <option key={index}>{type}</option>
         ))}
       </select>
 

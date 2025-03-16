@@ -49,10 +49,14 @@ const Header = () => {
               sidebarOpen ? "-translate-x-64" : "translate-x-0"
             }`}
           >
-            <FaBars
-              onClick={toggleSidebar}
-              className="text-xl cursor-pointer"
-            />
+            {isChatbotPage ? (
+              <FaBars
+                onClick={toggleSidebar}
+                className="text-xl cursor-pointer"
+              />
+            ) : (
+              <div></div>
+            )}
           </div>
 
           {/* Logo */}

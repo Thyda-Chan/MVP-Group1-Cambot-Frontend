@@ -66,7 +66,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
 
-  // Fetch role from localStorage on initial load
   useEffect(() => {
     const storedRole = localStorage.getItem("role")?.toLowerCase();
     if (storedRole) {

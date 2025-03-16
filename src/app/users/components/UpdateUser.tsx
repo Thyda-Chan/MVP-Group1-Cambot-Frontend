@@ -25,6 +25,7 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
   const [updatedUserPassword, setUpdatedUserPassword] = useState({
     password: "",
   });
+  const { role } = useUser();
 
   useEffect(() => {
     setUpdatedUser(user);
@@ -114,21 +115,23 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
             {error && <p className="text-red-500">{error}</p>}
           </div>
 
-          <div className="mt-4">
-            <label htmlFor="role" className="text-md text-[#015D7F]">
-              Role
-            </label>
-            <select
-              name="role"
-              value={updatedUser.role}
-              onChange={handleSelectChange}
-              className="mt-1 p-2 w-full border rounded-md"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-            </select>
-          </div>
+          {role === "manager" && (
+            <div className="mt-4">
+              <label htmlFor="role" className="text-md text-[#015D7F]">
+                Role
+              </label>
+              <select
+                name="role"
+                value={updatedUser.role}
+                onChange={handleSelectChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                {/* <option value="manager">Manager</option> */}
+              </select>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-4">
             <button

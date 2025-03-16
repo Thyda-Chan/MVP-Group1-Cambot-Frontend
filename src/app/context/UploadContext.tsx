@@ -253,7 +253,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         updated_at: item.updated_at,
       }));
 
-      console.log("doc type:", doctype);
+      // console.log("doc type:", doctype);
       setDocumentType(doctype);
     } catch (error) {
       console.error("Error fetching Document Type:", error);
