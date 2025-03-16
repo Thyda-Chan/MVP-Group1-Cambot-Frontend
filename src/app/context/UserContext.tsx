@@ -79,7 +79,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${LOCALHOST}/user/auth/login`, {
+      const response = await axios.post(`${LOCALHOST}/auth/login`, {
         username: workEmail,
         password: password,
       });
@@ -100,7 +100,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         (error as any)?.response?.data?.message || "Something went wrong"
       );
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

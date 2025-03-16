@@ -14,17 +14,18 @@ export default {
         primary: "#005D7F",
         green: "#6DC100",
         skyblue: "#bce9fa",
-        darkblue: "#0083b1",
+        // darkblue: "#0083b1",
+        darkblue: "#015D7F",
       },
 
       animation: {
-        'fade-in': 'fadeIn 0.3s ease-in-out',
+        "fade-in": "fadeIn 0.3s ease-in-out",
       },
 
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
     },

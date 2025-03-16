@@ -8,6 +8,8 @@ import Upload from "../upload/Upload";
 import { useUpload } from "../context/UploadContext";
 import UpdateDocument from "./components/UpdateDocument";
 import { useUser } from "../context/UserContext";
+import Link from "./components/Link";
+import DeleteButton from "./components/DeleteButton";
 
 export interface SimpleDocument {
   id: string;
@@ -118,7 +120,7 @@ export default function Documents() {
             </div>
 
             <div className="font-semibold ml-6">All Documents</div>
-            {role !== "admin" ? (
+            {role !== "admin" && role !== "manager" ? (
               loading ? (
                 <div className="flex justify-center items-center h-[40vh]">
                   <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
@@ -184,20 +186,13 @@ const DocumentBox = ({
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
+        <div className="w-12 h-12 px-8 bg-gray-200 rounded-md flex justify-center items-center">
           <span className="text-gray-500">{doc.type}</span>
         </div>
         <div className="flex flex-col">
           <p className="font-semibold truncate w-40">{doc.name}</p>
-          <button className="text-sm truncate w-40 text-start">
-            <a
-              href={doc.fileURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm truncate w-40 text-start underline"
-            >
-              link
-            </a>
+          <button className="text-sm truncate w-40 text-start underline text-darkblue">
+            <Link fileURL={doc.fileURL || ""}>Link</Link>
           </button>
         </div>
       </div>
@@ -232,12 +227,13 @@ const DocumentBox = ({
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
-        <button
+        {/* <button
           onClick={() => deleteDocument(doc.id)}
-          className="p-2 bg-gray-100 rounded-md"
+          className="p-2 rounded-md bg-red-400"
         >
-          <Trash2 />
-        </button>
+          <Trash2 color="#ffffff" />
+        </button> */}
+        <DeleteButton doc={doc} />
       </div>
 
       <UpdateDocument
@@ -338,15 +334,8 @@ const DocumentBoxUser = ({
         </div>
         <div className="flex flex-col">
           <p className="font-semibold truncate w-40">{doc.name}</p>
-          <button className="text-sm truncate w-40 text-start">
-            <a
-              href={doc.fileURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm truncate w-40 text-start underline"
-            >
-              link
-            </a>
+          <button className="text-sm truncate w-40 text-start underline text-darkblue">
+            <Link fileURL={doc.fileURL || ""}>Link</Link>
           </button>
         </div>
       </div>
