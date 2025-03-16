@@ -33,9 +33,9 @@ export default function ChatbotLayout({
         </main>
 
         {/* Footer */}
-        <footer className="bg-transparent text-white text-center py-2">
+        {/* <footer className="bg-transparent text-white text-center py-2">
           <Footer />
-        </footer>
+        </footer> */}
       </div>
     </ChatContext.Provider>
   );

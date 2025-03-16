@@ -37,7 +37,7 @@ const FileBox: React.FC<FileBoxProps> = ({ fileName, publishDate }) => {
           </a>
           {/* Publish Date */}
           {publishDate && (
-            <p className="text-xs text-gray-500 italic mt-1">Published: {publishDate}</p>
+            <p className="text-xs text-gray-500 italic mt-1">Published on: {publishDate}</p>
           )}
         </div>
       </div>
