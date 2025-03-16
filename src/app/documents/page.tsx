@@ -183,6 +183,21 @@ const DocumentBox = ({
     );
   };
 
+  const linkDownload = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    if (doc.fileURL) {
+      const link = document.createElement("a");
+      link.href = doc.fileURL;
+      link.download = "somefile.pdf"; // Name of the file to be downloaded
+
+      // Appending the link to the body and triggering click
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link); // Cleanup the DOM
+    }
+  };
+
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
@@ -224,15 +239,11 @@ const DocumentBox = ({
         >
           Update
         </button>
+
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
         </button>
-        {/* <button
-          onClick={() => deleteDocument(doc.id)}
-          className="p-2 rounded-md bg-red-400"
-        >
-          <Trash2 color="#ffffff" />
-        </button> */}
+
         <DeleteButton doc={doc} />
       </div>
 
