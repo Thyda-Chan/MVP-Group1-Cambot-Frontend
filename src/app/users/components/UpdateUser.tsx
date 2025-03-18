@@ -51,17 +51,17 @@ export default function UpdateUser({ user, onClose, onUpdate }: UpdateUser) {
     setUpdatedUser((prev) => ({ ...prev, [name]: value }));
 
     // password validation
-    if (name === "password") {
-      const capitalLetterRegex = /[A-Z]/;
-      const numberRegex = /[0-9]/;
-      if (!capitalLetterRegex.test(value)) {
-        setError("Password must contain at least one capital letter.");
-      } else if (!numberRegex.test(value)) {
-        setError("Password must contain at least one number.");
-      } else {
-        setError("");
-      }
-    }
+    // if (name === "password") {
+    //   const capitalLetterRegex = /[A-Z]/;
+    //   const numberRegex = /[0-9]/;
+    //   if (!capitalLetterRegex.test(value)) {
+    //     setError("Password must contain at least one capital letter.");
+    //   } else if (!numberRegex.test(value)) {
+    //     setError("Password must contain at least one number.");
+    //   } else {
+    //     setError("");
+    //   }
+    // }
   };
 
   const inputFields = [

@@ -190,11 +190,10 @@ const DocumentBox = ({
   // Update handleSave in DocumentBox component
   const handleSave = (updatedDoc: SimpleDocument) => {
     updateDocument(doc.id, {
-      // Change from doc.name to doc.id
       title: updatedDoc.name,
       publiced_date: updatedDoc.date,
-      document_type_id: updatedDoc.type, // This should be the document type name
-      department_id: updatedDoc.department, // This should be the department name
+      document_type_id: updatedDoc.type,
+      department_id: updatedDoc.department,
     });
     setFilteredDocuments((prevDocs) =>
       prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
@@ -206,7 +205,13 @@ const DocumentBox = ({
       <div className="flex-1 flex items-center gap-4">
         <Image src={pdf_logo} alt="pdf-logo" width={32} height={32} />
         <div className="flex flex-col">
-          <p className="font-semibold truncate w-40">{doc.name}</p>
+          <div className="relative group w-40">
+            <p className="font-semibold truncate w-full">{doc.name}</p>
+            <span className="absolute left-0 top-full mt-1 w-max max-w-xs bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
+              {doc.name}
+            </span>
+          </div>
+
           <button className="text-sm truncate w-40 text-start underline text-darkblue">
             <Link fileURL={doc.fileURL || ""}>Link</Link>
           </button>

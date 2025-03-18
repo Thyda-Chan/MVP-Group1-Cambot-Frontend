@@ -37,6 +37,7 @@ interface User {
   employeeId: string;
   role: string;
   is_active: boolean;
+  updatedAt: Date;
 }
 
 interface SubmissionUser {
@@ -119,16 +120,23 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      const users: User[] = response.data.data.map((user: any) => ({
-        userId: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.user_name,
-        employeeId: user.employee_id,
-        role: user.role,
-        password: "",
-        is_active: user.is_active,
-      }));
+      const users: User[] = response.data.data
+        .map(
+          (user: any): User => ({
+            userId: user.id,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            username: user.user_name,
+            employeeId: user.employee_id,
+            role: user.role,
+            password: "",
+            is_active: user.is_active,
+            updatedAt: new Date(user.updated_at || user.created_at),
+          })
+        )
+        .sort(
+          (a: User, b: User) => b.updatedAt.getTime() - a.updatedAt.getTime()
+        );
 
       setUser(users);
     } catch (error) {
@@ -163,10 +171,13 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         password: response.data.data.password,
         employeeId: response.data.data.employeeId,
         role: response.data.data.role,
-        is_active: response.data.data.is_active,
+        // is_active: response.data.data.is_active,
+        is_active: true,
+        updatedAt: response.data.data.updated_at,
       };
 
       setUser((prevUsers) => [...prevUsers, newUser]);
+      await fetchUsers();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message;

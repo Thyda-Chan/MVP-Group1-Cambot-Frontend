@@ -53,11 +53,6 @@ export default function UpdateBox({
       setter: setNewDepartment,
     },
     {
-      label: "Admin Name",
-      value: newAdminName,
-      setter: setNewAdminName,
-    },
-    {
       label: "Publish Date",
       value: newPublishedDate,
       setter: setNewPublishedDate,
