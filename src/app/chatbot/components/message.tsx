@@ -1,9 +1,8 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import userAvatar from '@/public/Assets_Images/user.png';
 import botAvatar from "@/public/Assets_Images/cambotlogo.png";
+import ResponseBox from './responsebox';
 
 interface MessageListProps {
   messages: { text: React.ReactNode; sender: 'user' | 'bot' }[];
@@ -14,7 +13,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
   return (
     <div className="w-full">
       {messages.map((msg, index) => (
-        <div 
+        <div
           key={index}
           className={`flex items-end ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
         >
@@ -27,9 +26,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
               className="rounded-full bg-white p-1 mr-2"
             />
           )}
-          <div
-            className={`p-4 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`} 
-          >
+          <div className={`p-4 rounded-3xl max-w-[70%] bg-white text-[#005D7F] shadow-md`}>
             {msg.text}
           </div>
           {msg.sender === 'user' && (

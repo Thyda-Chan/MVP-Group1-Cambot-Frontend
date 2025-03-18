@@ -1,24 +1,30 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import MessageList from '../components/message';
-import ChatInput from '../components/chatinput';
-import FileBox from '../components/filebox';
+import MessageList from './message';
+import ChatInput from './chatinput';
+import ResponseSelector from './responseselector';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChatContext } from '../layout';
+import FileBox from './filebox';
+
+interface ResponseOption {
+  fileName: string;
+  content: string;
+  publishDate: string;
+  fileId: string;
+}
 
 interface ChatWindowProps {
   initialMessage: string;
   onNewChat?: () => void;
 }
 
-interface Message {
-  text: React.ReactNode;
-  sender: 'user' | 'bot';
-}
-
 const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<{ text: React.ReactNode; sender: 'user' | 'bot' }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentGroupId, setCurrentGroupId] = useState('');
+  const [multipleResponses, setMultipleResponses] = useState<ResponseOption[] | null>(null);
+  const [isWaitingForSelection, setIsWaitingForSelection] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const hasSentInitialMessage = useRef(false);
   const lastFetchedGroupId = useRef<string | null>(null);
   const router = useRouter();
@@ -46,7 +52,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
             </div>
           ))}
       </div>
-      {/* Conditionally render FileBox only if fileId, fileName, and publishDate are provided */}
       {fileId && fileName && publishDate && (
         <FileBox fileId={fileId} fileName={fileName} publishDate={publishDate} />
       )}
@@ -102,7 +107,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
 
   // Get chatbot response
   const getChatbotResponse = useCallback(async (query: string) => {
-    if (!query.trim()) return;
+    if (!query.trim() || isLoading || isWaitingForSelection) return;
 
     setIsLoading(true);
     try {
@@ -138,22 +143,73 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
       setCurrentGroupId(data.group_id);
       lastFetchedGroupId.current = data.group_id;
 
-      const botResponse = data.response.map((item: [string, string, string, string]) => formatBotResponse(item[1], item[3], item[0], item[2]));
-      setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
+      // Handle multiple responses
+      if (data.response && data.response.length > 1) {
+        const options = data.response.map((item: [string, string, string, string]) => ({
+          fileName: item[0],
+          content: item[1],
+          publishDate: item[2],
+          fileId: item[3],
+        }));
+        setMultipleResponses(options);
+        setIsWaitingForSelection(true);
+        setCurrentChatId(data.chat_id); // Capture the chat ID
+      } else if (data.response && data.response.length === 1) {
+        const botResponse = data.response.map((item: [string, string, string, string]) =>
+          formatBotResponse(item[1], item[3], item[0], item[2])
+        );
+        setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
+      } else {
+        setMessages((prev) => [...prev, { text: "I couldn't find any relevant information for your query.", sender: 'bot' }]);
+      }
     } catch (error) {
       console.error('Error fetching chatbot response:', error);
       setMessages((prev) => [...prev, { text: "Sorry, I couldn't fetch the response. Please try again.", sender: 'bot' }]);
     } finally {
       setIsLoading(false);
     }
-  }, [currentGroupId, formatBotResponse, router]);
+  }, [currentGroupId, formatBotResponse, router, isLoading, isWaitingForSelection]);
 
   // Handle sending messages
   const handleSend = useCallback((query: string) => {
-    if (!query.trim()) return;
+    if (!query.trim() || isLoading || isWaitingForSelection) return;
     setMessages((prev) => [...prev, { text: query, sender: 'user' }]);
+    setMultipleResponses(null);
     getChatbotResponse(query);
-  }, [getChatbotResponse]);
+  }, [getChatbotResponse, isLoading, isWaitingForSelection]);
+
+  // Handle response selection
+  const handleResponseSelection = useCallback(async (selectedOption: ResponseOption, selectedIndex: number) => {
+    if (!currentChatId) return;
+
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('User is not authenticated');
+
+      const response = await fetch('http://127.0.0.1:8000/chat/best-answer/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ chat_id: currentChatId, chat_index: selectedIndex }),
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const botResponse = formatBotResponse(
+        selectedOption.content,
+        selectedOption.fileId,
+        selectedOption.fileName,
+        selectedOption.publishDate
+      );
+      setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
+      setMultipleResponses(null);
+      setIsWaitingForSelection(false);
+    } catch (error) {
+      console.error('Error selecting best answer:', error);
+    }
+  }, [currentChatId, formatBotResponse]);
 
   // Handle groupId changes
   useEffect(() => {
@@ -182,22 +238,34 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ initialMessage, onNewChat }) =>
     }
   }, [initialMessage, groupId, getChatbotResponse]);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change or when multipleResponses changes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, multipleResponses]);
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-1 pb-20">
+      <div className="flex-1 pb-20 over-flow-auto">
         <div className="flex flex-col space-y-4 p-4">
-          <MessageList messages={messages} isLoading={isLoading} />
+          <MessageList messages={messages} isLoading={isLoading && !multipleResponses} />
+
+          {/* Display response selection UI when multiple responses are available */}
+          {multipleResponses && (
+            <ResponseSelector
+              options={multipleResponses}
+              onSelectResponse={async (option, index) => await handleResponseSelection(option, index)}
+            />
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
       <div className="fixed bottom-0 left-0 w-full bg-transparent border-t border-gray-200 p-2">
         <div className="w-full max-w-xl mx-auto">
-          <ChatInput onUserMessage={handleSend} />
+          <ChatInput
+            onUserMessage={handleSend}
+            isDisabled={isLoading || isWaitingForSelection}
+          />
         </div>
       </div>
     </div>
