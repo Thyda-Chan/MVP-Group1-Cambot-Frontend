@@ -226,6 +226,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
           user.userId === userData.userId ? response.data : user
         )
       );
+      await fetchUsers();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message;
@@ -261,6 +262,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         prevUsers.filter((user) => user.userId !== userId)
       );
 
+      await fetchUsers();
       alert("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -295,6 +297,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
           user.userId === userId ? { ...user, role: newRole } : user
         )
       );
+      await fetchUsers();
 
       alert("User Role Updated Successfully");
     } catch (error) {
