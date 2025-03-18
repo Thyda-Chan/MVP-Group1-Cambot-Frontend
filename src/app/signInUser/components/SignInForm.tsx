@@ -13,12 +13,32 @@ const SignInForm: React.FC = () => {
     loading,
   } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-  
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null); // Clear any previous errors
+
+    try {
+      await handleSubmit(e); // Call the handleSubmit function from context
+    } catch (error) {
+      // Handle the error and display a friendly message
+      setError("Incorrect username or password. Please try again.");
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
       <h1 className="text-2xl font-medium text-center text-[#0083B1] mb-6">Sign In</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-5">
+
+      {/* Display error message if there's an error */}
+      {error && (
+        <div className="mb-4 p-2 text-sm text-red-600 bg-red-100 rounded-md">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="space-y-5">
         {/* Email/Username Field */}
         <div className="space-y-2">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -34,7 +54,7 @@ const SignInForm: React.FC = () => {
             required
           />
         </div>
-        
+
         {/* Password Field */}
         <div className="space-y-2">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -63,15 +83,15 @@ const SignInForm: React.FC = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Forgot Password Link */}
         <div className="text-right">
           <a href="#" className="text-sm text-[#0083B1] hover:text-[#007097]">
             Forgot password?
           </a>
         </div>
-        
-        {/* Submit Button - Enhanced with interactive effects */}
+
+        {/* Submit Button */}
         <div className="flex justify-center mt-2">
           <button
             type="submit"
