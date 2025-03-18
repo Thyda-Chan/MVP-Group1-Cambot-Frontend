@@ -28,7 +28,7 @@ const SignInPage = () => {
           </div>
 
           {/* Right Column: Login Form (60% width) */}
-          <div className="col-span-1 bg-white rounded-lg shadow-lg">
+          <div className="col-span-1 rounded-lg">
             <SignInForm />
           </div>
         </div>
