@@ -35,7 +35,8 @@ const Header = () => {
     { href: "/", label: "Homepage" },
   ];
 
-  const navigationLinks = role === "admin" ? adminLinks : userLinks;
+  const navigationLinks =
+    role === "admin" || "manager" ? adminLinks : userLinks;
 
   return (
     <div>
