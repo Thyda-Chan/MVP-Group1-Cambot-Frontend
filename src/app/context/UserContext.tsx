@@ -10,6 +10,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const LOCALHOST = "http://127.0.0.1:8000";
+
 interface UserContextType {
   loading: boolean;
   user: User[];
@@ -84,23 +85,27 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         password: password,
       });
 
-      const { accessToken, RefreshToken, role } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", RefreshToken);
-      localStorage.setItem("role", role);
+      // Ensure the backend returns a success response
+      if (response.data && response.data.accessToken) {
+        const { accessToken, RefreshToken, role } = response.data;
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", RefreshToken);
+        localStorage.setItem("role", role);
 
-      // Update role in state immediately
-      setRole(role);
+        // Update role in state immediately
+        setRole(role);
 
-      // Redirect to chatbot page upon login
-      router.push("/chatbot");
+        // Redirect to chatbot page upon successful login
+        router.push("/chatbot");
+      } else {
+        // If the backend does not return a valid response, throw an error
+        throw new Error("Login Failed");
+      }
     } catch (error) {
-      console.error(
-        "Login Failed",
-        (error as any)?.response?.data?.message || "Something went wrong"
-      );
+      // Throw an error to be caught by the SignInForm component
+      throw new Error("Incorrect username or password. Please try again.");
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -171,7 +176,6 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         password: response.data.data.password,
         employeeId: response.data.data.employeeId,
         role: response.data.data.role,
-        // is_active: response.data.data.is_active,
         is_active: true,
         updatedAt: response.data.data.updated_at,
       };
