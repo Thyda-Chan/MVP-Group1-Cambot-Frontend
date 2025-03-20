@@ -207,7 +207,7 @@ const DocumentBox = ({
         <div className="flex flex-col">
           <div className="relative group w-40">
             <p className="font-semibold truncate w-full">{doc.name}</p>
-            <span className="absolute left-0 top-full mt-1 w-max max-w-xs bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
+            <span className="absolute left-0 top-[-25px] mt-1 w-max max-w-xs bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
               {doc.name}
             </span>
           </div>
