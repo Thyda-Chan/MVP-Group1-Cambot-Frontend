@@ -1,9 +1,9 @@
-import React from 'react';
-import Footer from '../components/footer';
-import Header from '../components/header';
-import SignInForm from './components/SignInForm';
-import Image from 'next/image';
-import bot from '@/public/Assets_Images/bot.png'; // Import the bot image
+import React from "react";
+import Footer from "../components/footer";
+import Header from "../components/header";
+import SignInForm from "./components/SignInForm";
+import Image from "next/image";
+import bot from "@/public/Assets_Images/bot.png";
 
 const SignInPage = () => {
   return (
@@ -17,13 +17,26 @@ const SignInPage = () => {
           {/* Left Column: Welcome Message and Bot Image (40% width) */}
           <div className="col-span-1 flex flex-col items-center justify-center -ml-20">
             {/* Welcome Text (Split into 2 lines) */}
-            <h1 className="text-2xl font-bold mb-12 text-center" style={{ color: '#005D7F' }}>
-              <span className="hover:underline">CAMBOT</span>: Your Effective<br /> Document Search Engine.
+            <h1
+              className="text-2xl font-bold mb-12 text-center"
+              style={{ color: "#005D7F" }}
+            >
+              <span className="hover:underline">CAMBOT</span>: Your Effective
+              <br /> Document Search Engine.
             </h1>
 
             {/* Bot Image (Smaller, Spaced, and Moved to the Left) */}
-            <div className="flex justify-start -ml-20 transform transition-transform duration-300 hover:scale-110"> {/* Hover effect to pop up */}
-              <Image src={bot} alt="CAMBOT Bot" width={250} height={250} className="transition-transform duration-300 hover:rotate-12" /> {/* Hover effect to rotate */}
+            <div className="flex justify-start -ml-20 transform transition-transform duration-300 hover:scale-110">
+              {" "}
+              {/* Hover effect to pop up */}
+              <Image
+                src={bot}
+                alt="CAMBOT Bot"
+                width={250}
+                height={250}
+                className="transition-transform duration-300 hover:rotate-12"
+              />{" "}
+              {/* Hover effect to rotate */}
             </div>
           </div>
 

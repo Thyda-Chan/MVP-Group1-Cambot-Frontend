@@ -1,16 +1,17 @@
 "use client";
 
+import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import React, { useState } from "react";
 
 const actions = [
   { id: 1, label: "User Profile", route: "/users/users_profile" },
   { id: 2, label: "Setting", route: "/users/setting" },
-  { id: 3, label: "Logout", route: "/" },
 ];
 
 const UserAreaSelectBox = () => {
   const [open, setOpen] = useState(false);
+  const { logout } = useAuth();
 
   return (
     <>
@@ -44,6 +45,14 @@ const UserAreaSelectBox = () => {
               <Link href={item.route}>{item.label}</Link>
             </div>
           ))}
+          <div
+            onClick={() => {
+              setOpen(false);
+            }}
+            className="flex justify-center items-center p-2 hover:bg-sky-300 cursor-pointer"
+          >
+            <button onClick={logout}>Sign out</button>
+          </div>
         </div>
       </div>
 

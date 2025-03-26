@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaBars } from "react-icons/fa";
 import { usePathname } from "next/navigation";
@@ -9,11 +9,12 @@ import DefaultSidebar from "@/app/chatbot/components/sidebar";
 import UserAreaSelectBox from "@/app/chatbot/components/userprofilebox";
 import logo from "@/public/Assets_Images/cambotlogo.png";
 import { useUser } from "@/app/context/UserContext"; // Import the useUser hook
+import { useAuth } from "@/app/context/AuthContext";
 
 const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { role } = useUser(); // Get the user's role from context
+  const { role } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -36,7 +37,12 @@ const Header = () => {
   ];
 
   const navigationLinks =
-    role === "admin" || "manager" ? adminLinks : userLinks;
+    role === "admin" || role === "manager" ? adminLinks : userLinks;
+
+  useEffect(() => {
+    const token = localStorage.getItem("role");
+    if (token) return;
+  }, []);
 
   return (
     <div>

@@ -12,6 +12,7 @@ import Link from "./components/Link";
 import DeleteButton from "./components/DeleteButton";
 import Image from "next/image";
 import pdf_logo from "@/public/Assets_Images/pdf-logo.png";
+import { AuthGuard } from "../context/AuthGuard";
 
 export interface SimpleDocument {
   id: string;
@@ -92,92 +93,94 @@ export default function Documents() {
   }, [open]);
 
   return (
-    <div className="min-h-screen  bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1] relative">
-      <div className={`${open ? "opacity-20" : ""}`}>
-        <Header />
-        <div
-          {...(open && { onClick: () => setOpen(false) })}
-          className="flex justify-center items-center"
-        >
-          <div className="min-h-[calc(100vh-64px)] min-w-full p-6 space-y-6">
-            <div className="flex items-center gap-4 ml-6">
-              <h1 className="text-2xl font-semibold">Documents</h1>
-            </div>
-
-            <div className="flex gap-4 items-center ml-6">
-              <SearchDoc
-                placeholder="Search documents"
-                documents={documents.map((doc) => ({
-                  ...doc,
-                  department_id: (doc as SimpleDocument).department_id || "",
-                  document_type_id:
-                    (doc as SimpleDocument).document_type_id || "",
-                }))}
-                setFilteredDocuments={setFilteredDocuments}
-                handleFilter={handleFilter}
-                departments={department.map((dept) => dept.name)}
-                documentTypes={documentType.map((type) => type.name)}
-              />
-
-              <div className="flex items-center">
-                {role !== "admin" && role !== "manager" ? (
-                  <div></div>
-                ) : (
-                  <button
-                    onClick={() => setOpen((prev) => !prev)}
-                    className="flex items-center gap-2 px-4 py-2 bg-darkblue text-white rounded-xl"
-                  >
-                    <div>Upload</div>
-                    <CloudUpload />
-                  </button>
-                )}
+    <AuthGuard>
+      <div className="min-h-screen  bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1] relative">
+        <div className={`${open ? "opacity-20" : ""}`}>
+          <Header />
+          <div
+            {...(open && { onClick: () => setOpen(false) })}
+            className="flex justify-center items-center"
+          >
+            <div className="min-h-[calc(100vh-64px)] min-w-full p-6 space-y-6">
+              <div className="flex items-center gap-4 ml-6">
+                <h1 className="text-2xl font-semibold">Documents</h1>
               </div>
-            </div>
 
-            <div className="font-semibold ml-6">All Documents</div>
-            {role !== "admin" && role !== "manager" ? (
-              loading ? (
+              <div className="flex gap-4 items-center ml-6">
+                <SearchDoc
+                  placeholder="Search documents"
+                  documents={documents.map((doc) => ({
+                    ...doc,
+                    department_id: (doc as SimpleDocument).department_id || "",
+                    document_type_id:
+                      (doc as SimpleDocument).document_type_id || "",
+                  }))}
+                  setFilteredDocuments={setFilteredDocuments}
+                  handleFilter={handleFilter}
+                  departments={department.map((dept) => dept.name)}
+                  documentTypes={documentType.map((type) => type.name)}
+                />
+
+                <div className="flex items-center">
+                  {role !== "admin" && role !== "manager" ? (
+                    <div></div>
+                  ) : (
+                    <button
+                      onClick={() => setOpen((prev) => !prev)}
+                      className="flex items-center gap-2 px-4 py-2 bg-darkblue text-white rounded-xl"
+                    >
+                      <div>Upload</div>
+                      <CloudUpload />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="font-semibold ml-6">All Documents</div>
+              {role !== "admin" && role !== "manager" ? (
+                loading ? (
+                  <div className="flex justify-center items-center h-[40vh]">
+                    <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredDocuments.map((doc, index) => (
+                      <DocumentBoxUser
+                        key={doc.id || `${doc.name}-${index}`}
+                        doc={doc}
+                        setFilteredDocuments={setFilteredDocuments}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : loading ? (
                 <div className="flex justify-center items-center h-[40vh]">
                   <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {filteredDocuments.map((doc, index) => (
-                    <DocumentBoxUser
+                    <DocumentBox
                       key={doc.id || `${doc.name}-${index}`}
                       doc={doc}
                       setFilteredDocuments={setFilteredDocuments}
                     />
                   ))}
                 </div>
-              )
-            ) : loading ? (
-              <div className="flex justify-center items-center h-[40vh]">
-                <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredDocuments.map((doc, index) => (
-                  <DocumentBox
-                    key={doc.id || `${doc.name}-${index}`}
-                    doc={doc}
-                    setFilteredDocuments={setFilteredDocuments}
-                  />
-                ))}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div
-        className={`absolute left-40 w-[75%] rounded-2xl ${
-          open ? "opacity-100 h-auto" : "opacity-0 h-0"
-        } transition-all duration-200 overflow-hidden top-12 right-0`}
-      >
-        <Upload setOpen={setOpen} />
+        <div
+          className={`absolute left-40 w-[75%] rounded-2xl ${
+            open ? "opacity-100 h-auto" : "opacity-0 h-0"
+          } transition-all duration-200 overflow-hidden top-12 right-0`}
+        >
+          <Upload setOpen={setOpen} />
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }
 

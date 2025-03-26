@@ -1,4 +1,5 @@
 "use client";
+
 import React, {
   ReactNode,
   useState,
@@ -8,6 +9,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "./AuthContext";
 
 const LOCALHOST = "http://127.0.0.1:8000";
 
@@ -67,6 +69,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   const [workEmail, setWorkEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const { login } = useAuth();
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role")?.toLowerCase();
@@ -85,24 +88,17 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         password: password,
       });
 
-      // Ensure the backend returns a success response
       if (response.data && response.data.accessToken) {
         const { accessToken, RefreshToken, role } = response.data;
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", RefreshToken);
-        localStorage.setItem("role", role);
 
-        // Update role in state immediately
         setRole(role);
+        login(accessToken, RefreshToken, role);
 
-        // Redirect to chatbot page upon successful login
         router.push("/chatbot");
       } else {
-        // If the backend does not return a valid response, throw an error
         throw new Error("Login Failed");
       }
     } catch (error) {
-      // Throw an error to be caught by the SignInForm component
       throw new Error("Incorrect username or password. Please try again.");
     } finally {
       setLoading(false);
@@ -155,7 +151,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
     const accessToken = localStorage.getItem("accessToken");
 
     if (!accessToken) {
-      console.error("User is not authenticated");
+      // console.error("User is not authenticated");
       return;
     }
 
