@@ -27,6 +27,12 @@ interface UploadContextType {
   setData: (data: SubmissionData) => void;
   department: Department[];
   documentType: DocumentType[];
+  loadingUpload: boolean;
+  setLoadingUpload: React.Dispatch<React.SetStateAction<boolean>>;
+  loadingUploadFlag: boolean;
+  setLoadingUploadFlag: React.Dispatch<React.SetStateAction<boolean>>;
+  alertFlag: boolean;
+  setAlertFlag: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface SubmissionData {
@@ -75,6 +81,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<SubmissionData | null>(null);
   const [department, setDepartment] = useState<Department[]>([]);
   const [documentType, setDocumentType] = useState<DocumentType[]>([]);
+  const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
+  const [loadingUploadFlag, setLoadingUploadFlag] = useState<boolean>(false);
+  const [alertFlag, setAlertFlag] = useState<boolean>(false);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -97,12 +106,12 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching documents:", error);
     } finally {
       setLoading(false);
-      console.log("x fetchdoc:");
     }
   };
 
   const postDocuments = async (data: SubmissionData) => {
-    setLoading(true);
+    setLoadingUpload(true);
+    setLoadingUploadFlag(true);
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
@@ -172,17 +181,17 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       };
 
       setDocuments((prevDocuments) => [...prevDocuments, newDocument]);
-      console.log("x");
-      alert(
-        "File uploaded successfully: " +
-          fileData.file_url +
-          " Name: " +
-          fileData.file_name
-      );
+      // alert(
+      //   "File uploaded successfully: " +
+      //     fileData.file_url +
+      //     " Name: " +
+      //     fileData.file_name
+      // );
+      setLoadingUpload(false);
     } catch (error) {
       console.error("Error uploading document:", error);
     } finally {
-      setLoading(false);
+      // setLoadingUpload(false);
     }
   };
 
@@ -199,7 +208,8 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       //   prevDocuments.filter((doc) => doc.name !== file_name)
       // );
       await fetchDocuments();
-      alert("File deleted successfully");
+      // alert("File deleted successfully");
+      setAlertFlag(true);
     } catch (error) {
       console.error("Error deleting document:", error);
     } finally {
@@ -345,6 +355,12 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         setData,
         department,
         documentType,
+        loadingUpload,
+        setLoadingUpload,
+        loadingUploadFlag,
+        setLoadingUploadFlag,
+        alertFlag,
+        setAlertFlag,
       }}
     >
       {children}

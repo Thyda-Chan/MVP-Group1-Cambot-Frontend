@@ -6,6 +6,7 @@ import AddUser from "./components/AddUser";
 import { useUser } from "../context/UserContext";
 import UpdateUser from "./components/UpdateUser";
 import { AuthGuard, RoleGuard } from "../context/AuthGuard";
+import { UploadCloud } from "lucide-react";
 
 export default function Users() {
   const { loading, user, fetchUsers, deleteUser, updateUser } = useUser();
@@ -149,7 +150,6 @@ export default function Users() {
                   </button>
                 </div>
               </div>
-
               {loading ? (
                 <div className="flex justify-center items-center h-[40vh]">
                   <div className="w-10 h-10 border-4 border-darkblue border-t-transparent rounded-full animate-spin"></div>

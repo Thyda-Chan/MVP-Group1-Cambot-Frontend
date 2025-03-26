@@ -1,7 +1,14 @@
 "use client";
 
 import Header from "@/app/chatbot/components/header";
-import { ArrowDown, CloudUpload, Search, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ChevronRight,
+  CloudUpload,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import Button from "./components/Button";
 import { useEffect, useState, useCallback } from "react";
 import Upload from "../upload/Upload";
@@ -13,6 +20,8 @@ import DeleteButton from "./components/DeleteButton";
 import Image from "next/image";
 import pdf_logo from "@/public/Assets_Images/pdf-logo.png";
 import { AuthGuard } from "../context/AuthGuard";
+import { FaArrowLeft, FaTimes } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export interface SimpleDocument {
   id: string;
@@ -30,7 +39,17 @@ export interface SimpleDocument {
 export default function Documents() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
-  const { documents, loading, department, documentType } = useUpload();
+  const {
+    documents,
+    loading,
+    department,
+    documentType,
+    loadingUpload,
+    loadingUploadFlag,
+    setLoadingUploadFlag,
+    alertFlag,
+    setAlertFlag,
+  } = useUpload();
   const [filteredDocuments, setFilteredDocuments] = useState<SimpleDocument[]>(
     []
   );
@@ -104,6 +123,18 @@ export default function Documents() {
             <div className="min-h-[calc(100vh-64px)] min-w-full p-6 space-y-6">
               <div className="flex items-center gap-4 ml-6">
                 <h1 className="text-2xl font-semibold">Documents</h1>
+                {loadingUploadFlag === true ? (
+                  <div className="absolute right-0 top-[4.5rem]">
+                    <LoadingBox loading={loadingUpload} />
+                  </div>
+                ) : null}
+              </div>
+
+              <div>
+                <AlertBox
+                  isVisible={alertFlag}
+                  onClose={() => setAlertFlag(false)}
+                />
               </div>
 
               <div className="flex gap-4 items-center ml-6">
@@ -191,11 +222,20 @@ const DocumentBox = ({
   doc: SimpleDocument;
   setFilteredDocuments: React.Dispatch<React.SetStateAction<SimpleDocument[]>>;
 }) => {
-  const { deleteDocument, updateDocument } = useUpload();
+  const {
+    deleteDocument,
+    updateDocument,
+    loadingUpload,
+    setLoadingUpload,
+    setLoadingUploadFlag,
+  } = useUpload();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Update handleSave in DocumentBox component
   const handleSave = (updatedDoc: SimpleDocument) => {
+    setLoadingUpload(true);
+    setLoadingUploadFlag(true);
+
     updateDocument(doc.id, {
       title: updatedDoc.name,
       publiced_date: updatedDoc.date,
@@ -356,26 +396,10 @@ const SearchDoc = ({
 
 const DocumentBoxUser = ({
   doc,
-  setFilteredDocuments,
 }: {
   doc: SimpleDocument;
   setFilteredDocuments: React.Dispatch<React.SetStateAction<SimpleDocument[]>>;
 }) => {
-  const { deleteDocument, updateDocument } = useUpload();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleSave = (updatedDoc: SimpleDocument) => {
-    updateDocument(doc.name, {
-      title: updatedDoc.name,
-      publiced_date: updatedDoc.date,
-      document_type_id: updatedDoc.document_type_id,
-      department_id: updatedDoc.department,
-    });
-    setFilteredDocuments((prevDocs) =>
-      prevDocs.map((d) => (d.id === doc.id ? { ...d, ...updatedDoc } : d))
-    );
-  };
-
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
@@ -414,6 +438,77 @@ const DocumentBoxUser = ({
           {doc.department}
         </div>
       </div>
+    </div>
+  );
+};
+
+const LoadingBox: React.FC<{ loading: boolean }> = ({ loading }) => {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setVisible(false);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setVisible(true);
+    }
+  }, [loading]);
+
+  return (
+    visible && (
+      <div className="w-64 p-2 border rounded-lg shadow-md flex flex-col items-center text-center">
+        {loading ? (
+          <>
+            <div className="flex space-x-5">
+              <p className="text-sm text-gray-500">Uploading...</p>
+              {/* <div className="w-4 h-4 border-4 border-gray-300 border-t-darkblue rounded-full animate-spin mb-3"></div> */}
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div className="w-full bg-darkblue h-2 rounded-full animate-pulse"></div>
+            </div>
+          </>
+        ) : (
+          <div className="flex">
+            <p className="text-sm text-gray-800 animate-pulse">
+              Upload Complete!
+            </p>
+          </div>
+        )}
+      </div>
+    )
+  );
+};
+
+const AlertBox: React.FC<{ isVisible: boolean; onClose: () => void }> = ({
+  isVisible,
+  onClose,
+}) => {
+  if (!isVisible) return null;
+
+  const handleClose = () => {
+    onClose();
+    isVisible = false;
+  };
+
+  return (
+    <div className="fixed z-50 inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-white p-4 rounded-md flex flex-col justify-center items-center space-y-4 shadow-lg"
+      >
+        <span>Document deleted successfully!</span>
+        <button
+          onClick={onClose}
+          className="w-1/4 h-fit p-2 bg-red-500 text-white text-sm rounded-md"
+        >
+          Close
+        </button>
+      </motion.div>
     </div>
   );
 };
