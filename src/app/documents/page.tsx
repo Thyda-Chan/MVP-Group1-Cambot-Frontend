@@ -92,7 +92,7 @@ export default function Documents() {
   }, [open]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1] relative">
+    <div className="min-h-screen  bg-gradient-to-b from-[#F5FCFF] to-[#62C9F1] relative">
       <div className={`${open ? "opacity-20" : ""}`}>
         <Header />
         <div
@@ -120,13 +120,17 @@ export default function Documents() {
               />
 
               <div className="flex items-center">
-                <button
-                  onClick={() => setOpen((prev) => !prev)}
-                  className="flex items-center gap-2 px-4 py-2 bg-darkblue text-white rounded-xl"
-                >
-                  <div>Upload</div>
-                  <CloudUpload />
-                </button>
+                {role !== "admin" && role !== "manager" ? (
+                  <div></div>
+                ) : (
+                  <button
+                    onClick={() => setOpen((prev) => !prev)}
+                    className="flex items-center gap-2 px-4 py-2 bg-darkblue text-white rounded-xl"
+                  >
+                    <div>Upload</div>
+                    <CloudUpload />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -205,9 +209,9 @@ const DocumentBox = ({
       <div className="flex-1 flex items-center gap-4">
         <Image src={pdf_logo} alt="pdf-logo" width={32} height={32} />
         <div className="flex flex-col">
-          <div className="relative group w-40">
+          <div className="relative group w-64">
             <p className="font-semibold truncate w-full">{doc.name}</p>
-            <span className="absolute left-0 top-[-25px] mt-1 w-max max-w-xs bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
+            <span className="absolute left-0 top-[-25px] mt-1 w-max max-w-fit bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
               {doc.name}
             </span>
           </div>
@@ -245,10 +249,10 @@ const DocumentBox = ({
         >
           Update
         </button>
-
+        {/* 
         <button className="p-2 bg-gray-100 rounded-md">
           <ArrowDown />
-        </button>
+        </button> */}
 
         <DeleteButton doc={doc} />
       </div>
@@ -372,11 +376,15 @@ const DocumentBoxUser = ({
   return (
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div className="flex-1 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-md flex justify-center items-center">
-          <span className="text-gray-500">{doc.type}</span>
-        </div>
+        <Image src={pdf_logo} alt="pdf-logo" width={32} height={32} />
         <div className="flex flex-col">
-          <p className="font-semibold truncate w-40">{doc.name}</p>
+          <div className="relative group w-40">
+            <p className="font-semibold truncate w-full">{doc.name}</p>
+            <span className="absolute left-0 top-[-25px] mt-1 w-max max-w-xs bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap">
+              {doc.name}
+            </span>
+          </div>
+
           <button className="text-sm truncate w-40 text-start underline text-darkblue">
             <Link fileURL={doc.fileURL || ""}>Link</Link>
           </button>

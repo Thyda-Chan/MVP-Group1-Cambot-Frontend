@@ -6,7 +6,7 @@ import React, { useState } from "react";
 const actions = [
   { id: 1, label: "User Profile", route: "/users/users_profile" },
   { id: 2, label: "Setting", route: "/users/setting" },
-  { id: 3, label: "Logout", route: "/users/logout" },
+  { id: 3, label: "Logout", route: "/" },
 ];
 
 const UserAreaSelectBox = () => {
