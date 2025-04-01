@@ -56,7 +56,7 @@ export default function ChatbotPage() {
               className="mt-0"
             />
             <p className="adlam-font font-bold text-[#0082B3] text-xl sm:text-2xl md:text-3xl mb-8 text-center">
-              What can I help you today?
+              What can I help with? 
             </p>
             <div className="w-full max-w-[600px] px-4">
               <ChatInput onUserMessage={handleUserMessage} />
