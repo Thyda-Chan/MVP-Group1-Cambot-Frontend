@@ -226,6 +226,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
       department_id?: string;
     }
   ) => {
+    setLoadingUploadFlag(false);
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {

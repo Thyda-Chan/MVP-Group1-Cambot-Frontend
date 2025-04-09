@@ -7,6 +7,7 @@ import { useUser } from "../context/UserContext";
 import UpdateUser from "./components/UpdateUser";
 import { AuthGuard, RoleGuard } from "../context/AuthGuard";
 import { UploadCloud } from "lucide-react";
+import DeleteButton from "./components/DeleteButton";
 
 export default function Users() {
   const { loading, user, fetchUsers, deleteUser, updateUser } = useUser();
@@ -89,13 +90,14 @@ export default function Users() {
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    if (
-      window.confirm(`Are you sure you want to delete this user? ${userId}`)
-    ) {
-      deleteUser(userId).catch((error) => {
-        console.error("Error deleting user:", error);
-      });
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await deleteUser(userId);
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.userId !== userId)
+      );
+    } catch (error) {
+      console.error("Error deleting user:", error);
     }
   };
 
@@ -218,12 +220,16 @@ export default function Users() {
                           >
                             Update
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => handleDeleteUser(user.userId)}
                             className="p-2 bg-gray-100 rounded-md"
                           >
                             <Trash2 />
-                          </button>
+                          </button> */}
+                          <DeleteButton
+                            userId={user.userId}
+                            onDelete={handleDeleteUser}
+                          />
                         </div>
                       </div>
                     ))}

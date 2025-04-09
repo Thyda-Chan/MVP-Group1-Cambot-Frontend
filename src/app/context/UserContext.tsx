@@ -264,7 +264,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
 
       await fetchUsers();
 
-      alert("User deleted successfully");
+      // alert("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
     } finally {
